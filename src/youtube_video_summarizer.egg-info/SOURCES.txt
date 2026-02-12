@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+src/youtube_video_summarizer/__init__.py
+src/youtube_video_summarizer/__main__.py
+src/youtube_video_summarizer/chat.py
+src/youtube_video_summarizer/cli.py
+src/youtube_video_summarizer.egg-info/PKG-INFO
+src/youtube_video_summarizer.egg-info/SOURCES.txt
+src/youtube_video_summarizer.egg-info/dependency_links.txt
+src/youtube_video_summarizer.egg-info/entry_points.txt
+src/youtube_video_summarizer.egg-info/requires.txt
+src/youtube_video_summarizer.egg-info/top_level.txt

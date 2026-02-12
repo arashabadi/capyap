@@ -1,0 +1,3 @@
+[console_scripts]
+yt-extract-summarize = youtube_video_summarizer.cli:main
+yt-transcript-chat = youtube_video_summarizer.chat:main
