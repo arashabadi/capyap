@@ -3,13 +3,13 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "youtube-video-summarizer"
+name = "capyap"
 version = "0.1.0"
-description = "Extract YouTube transcripts and generate concise summaries"
+description = "Local-first YouTube transcript assistant with citation-grounded answers"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-keywords = ["youtube", "transcript", "summary", "llm", "cli"]
+keywords = ["youtube", "transcript", "llm", "langgraph", "desktop", "local-first"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -21,11 +21,16 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
+  "fastapi>=0.115.0",
+  "langgraph>=0.2.57",
+  "pydantic>=2.8.0",
   "requests>=2.31.0",
+  "uvicorn[standard]>=0.30.0",
   "youtube-transcript-api>=1.2.4",
 ]
 
 [project.scripts]
+capyap = "youtube_video_summarizer.capyap_cli:main"
 yt-extract-summarize = "youtube_video_summarizer.cli:main"
 yt-transcript-chat = "youtube_video_summarizer.chat:main"
 

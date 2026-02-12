@@ -1,140 +1,97 @@
-# youtube-video-summarizer
+# Capyap
 
-A lightweight open-source CLI package that:
+Local-first YouTube transcript assistant with citation-grounded answers.
 
-1. Extracts YouTube transcripts
-2. Generates a quick summary
-3. Lets you chat with any OpenAI-compatible LLM about the transcript
+Capyap gives non-coder users a simple desktop/web workflow:
+- paste a YouTube link (or transcript file)
+- ask questions
+- get answers with timestamp evidence
 
-It is pure Python and works on macOS, Linux, and Windows.
-
-## Features
-
-- Cross-platform install (`pip`, `pipx`, `uv`, or conda)
-- Minimal dependencies
-- OpenAI-compatible chat endpoint support via `--base-url`
-- Secure token loading from environment variable
-- Works with YouTube URL/ID or local transcript file
-
-## Installation
-
-### Option A: conda (recommended)
+## Quickstart (Recommended)
 
 ```bash
-conda env create -f environment.yml
-conda activate yt_video_summary
+git clone https://github.com/arashabadi/capyap.git
+cd capyap
+conda env create -f capyap.yml
+conda activate capyap
+npm run build
+capyap start
 ```
 
-### Option B: pip
+What happens:
+- `npm run build` installs frontend deps and builds static assets once
+- `capyap start` launches local backend + UI and opens your browser automatically
+
+## First Run in the App
+
+1. Enter your LLM provider settings in onboarding:
+- base URL
+- model
+- token (or env var name)
+2. Paste a YouTube URL or local transcript `.txt` path.
+3. Ask questions and review timestamp citations.
+4. Use `Talk to Agent` for multi-turn follow-up chat.
+
+## Daily Usage
 
 ```bash
-python -m pip install .
+conda activate capyap
+capyap start
 ```
 
-For editable local development:
+Useful flags:
+- `capyap start --no-browser`
+- `capyap start --port 8080`
+- `capyap start --host 0.0.0.0`
 
-```bash
-python -m pip install -e .
-```
+## Local Files and Clean Git
 
-After publishing to PyPI, users can install with:
+Generated files stay local and are ignored:
+- `apps/frontend/node_modules/`
+- `apps/frontend/dist/`
+- `apps/desktop/node_modules/`
+- `.capyap/`
 
-```bash
-python -m pip install youtube-video-summarizer
-```
+The source tree remains lightweight for commits and PRs.
 
-### Option C: pipx (isolated global CLI)
+## Project Structure
 
-```bash
-pipx install .
-```
+- `apps/backend/`: FastAPI + LangGraph agent backend
+- `apps/frontend/`: React/Vite UI (onboarding, Q/A workspace, talk-to-agent popup)
+- `apps/desktop/`: Tauri desktop shell (macOS/Windows/Linux)
+- `src/youtube_video_summarizer/`: Python package and CLI entrypoints
+- `apps/UI_LLM_BRIEF.md`: page-by-page product/UI brief for design LLMs
 
-### Option D: uv
+## Developer Mode (Optional)
 
-```bash
-uv tool install .
-```
+For separate backend/frontend/desktop development flow, see:
+- `apps/README.md`
 
-## CLI 1: Extract + summarize
+## Legacy CLI Tools (Optional)
 
-```bash
-yt-extract-summarize "https://youtu.be/ZbTVXrhesJY" --summary-sentences 10 --out-dir output
-```
+Capyap still exposes the original transcript CLI commands:
+- `yt-extract-summarize`
+- `yt-transcript-chat`
 
-Outputs:
+Usage docs:
+- `docs/LEGACY_CLI.md`
 
-- `output/<video_id>.transcript.txt`
-- `output/<video_id>.summary.txt`
+## Troubleshooting
 
-## CLI 2: Chat with transcript using any LLM API
+- `capyap: command not found`
+  - Ensure env is active: `conda activate capyap`
+  - Reinstall package in env: `python -m pip install -e .`
 
-Set token with env var (recommended):
+- `Frontend build not found`
+  - Run once from repo root: `npm run build`
 
-macOS/Linux:
+- Port already in use
+  - Use another port: `capyap start --port 8080`
 
-```bash
-export LLM_API_TOKEN="your_token_here"
-```
+## Contributing
 
-Windows PowerShell:
+See `CONTRIBUTING.md`.
 
-```powershell
-$env:LLM_API_TOKEN="your_token_here"
-```
+## License
 
-### OpenAI example
-
-```bash
-yt-transcript-chat "https://youtu.be/ZbTVXrhesJY" \
-  --model gpt-4o-mini \
-  --base-url https://api.openai.com/v1
-```
-
-### OpenRouter example
-
-```bash
-yt-transcript-chat "https://youtu.be/ZbTVXrhesJY" \
-  --model openai/gpt-4o-mini \
-  --base-url https://openrouter.ai/api/v1
-```
-
-### Local OpenAI-compatible server (vLLM/LM Studio/Ollama gateway)
-
-```bash
-yt-transcript-chat output/ZbTVXrhesJY.transcript.txt \
-  --model your-local-model \
-  --base-url http://localhost:1234/v1 \
-  --api-token not-used
-```
-
-### One-shot Q/A mode
-
-```bash
-yt-transcript-chat output/ZbTVXrhesJY.transcript.txt \
-  --question "What are the main points?" \
-  --model gpt-4o-mini \
-  --base-url https://api.openai.com/v1
-```
-
-## Python API
-
-```python
-from youtube_video_summarizer import run
-
-result = run(
-    video="https://youtu.be/ZbTVXrhesJY",
-    languages="en,en-US",
-    summary_sentences=10,
-    out_dir="output",
-)
-print(result["summary_path"])
-```
-
-## Product quality checklist (for open-source readiness)
-
-- Keep a stable CLI and semantic versions
-- Add CI matrix for macOS/Linux/Windows
-- Add tests for parser, transcript fetch mocking, and chat request formatting
-- Document provider setup and security practices for API tokens
-- Publish to PyPI and add a changelog
-- Add issue templates and contribution guide
+MIT

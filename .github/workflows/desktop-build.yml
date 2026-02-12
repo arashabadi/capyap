@@ -1,0 +1,53 @@
+name: Desktop Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - ".github/workflows/desktop-build.yml"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-22.04, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend deps
+        run: npm --prefix apps/frontend install
+
+      - name: Install desktop deps
+        run: npm --prefix apps/desktop install
+
+      - name: Build desktop installers
+        uses: tauri-apps/tauri-action@v0
+        with:
+          projectPath: apps/desktop
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: capyap-desktop-${{ matrix.os }}
+          path: |
+            apps/desktop/src-tauri/target/release/bundle/**

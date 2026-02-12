@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Conda / venv
+.venv/
+venv/
+env/
+.env
+.env.*
+.conda/
+
+# Node
+node_modules/
+apps/frontend/node_modules/
+apps/desktop/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+apps/frontend/dist/
+build/
+*.egg-info/
+
+# Desktop / Tauri
+src-tauri/target/
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+apps/desktop/src-tauri/icons/
+
+# App local data
+.capyap/
+apps/backend/.capyap/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Existing local outputs
+output/*.transcript.txt
+output/*.summary.txt

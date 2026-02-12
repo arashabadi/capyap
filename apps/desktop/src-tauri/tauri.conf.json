@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Capyap",
+  "version": "0.1.0",
+  "identifier": "com.capyap.desktop",
+  "build": {
+    "beforeDevCommand": "npm --prefix ../frontend run dev -- --host 127.0.0.1 --port 5173",
+    "beforeBuildCommand": "npm --prefix ../frontend run build",
+    "devUrl": "http://127.0.0.1:5173",
+    "frontendDist": "../frontend/dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "title": "Capyap",
+        "width": 1200,
+        "height": 800,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": false
+  }
+}
