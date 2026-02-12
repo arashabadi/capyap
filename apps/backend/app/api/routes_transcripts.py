@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from ..schemas import (
+from .schemas import (
     TranscriptLoadRequest,
     TranscriptLoadResponse,
     TranscriptMeta,
 )
-from ...core.dependencies import get_store, get_transcript_service
+from ..core.dependencies import get_store, get_transcript_service
 
 router = APIRouter(prefix="/api/transcripts", tags=["transcripts"])
 

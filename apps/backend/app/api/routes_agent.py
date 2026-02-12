@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from ..schemas import AgentChatRequest, AgentChatResponse, Citation
-from ...agent.graph import run_agent
-from ...core.dependencies import get_store, get_transcript_service
+from .schemas import AgentChatRequest, AgentChatResponse, Citation
+from ..agent.graph import run_agent
+from ..core.dependencies import get_store, get_transcript_service
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 

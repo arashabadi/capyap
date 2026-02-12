@@ -6,8 +6,8 @@ import os
 
 from fastapi import APIRouter
 
-from ..schemas import SaveSettingsRequest, SettingsResponse
-from ...core.dependencies import get_store
+from .schemas import SaveSettingsRequest, SettingsResponse
+from ..core.dependencies import get_store
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
