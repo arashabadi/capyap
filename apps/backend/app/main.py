@@ -24,10 +24,12 @@ app.add_middleware(
 app.include_router(settings_router)
 app.include_router(transcripts_router)
 app.include_router(agent_router)
-register_spa(app, get_frontend_dist_dir())
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
     """Simple health endpoint for local orchestration checks."""
     return {"status": "ok"}
+
+
+register_spa(app, get_frontend_dist_dir())

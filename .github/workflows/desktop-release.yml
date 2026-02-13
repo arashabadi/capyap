@@ -15,7 +15,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            bundles: app,dmg
+            bundles: app
           - os: ubuntu-22.04
             bundles: deb,rpm,appimage
           - os: windows-latest
@@ -61,7 +61,6 @@ jobs:
           name: capyap-release-${{ matrix.os }}
           if-no-files-found: warn
           path: |
-            apps/desktop/src-tauri/target/release/bundle/**/*.dmg
             apps/desktop/src-tauri/target/release/bundle/**/*.app.tar.gz
             apps/desktop/src-tauri/target/release/bundle/**/*.msi
             apps/desktop/src-tauri/target/release/bundle/**/*.exe
@@ -85,7 +84,6 @@ jobs:
           set -euo pipefail
           mkdir -p release-assets
           find release-artifacts -type f \( \
-            -name '*.dmg' -o \
             -name '*.app.tar.gz' -o \
             -name '*.msi' -o \
             -name '*.exe' -o \

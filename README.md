@@ -80,7 +80,7 @@ git push origin v1.0.0
    [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
 
 Release assets include:
-- macOS: `.dmg` and `.app.tar.gz`
+- macOS: `.app.tar.gz`
 - Windows: `.msi` and/or `.exe` (NSIS)
 - Linux: `.deb`, `.rpm`, `.AppImage`
 
