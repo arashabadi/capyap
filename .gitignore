@@ -39,6 +39,10 @@ src-tauri/target/
 apps/desktop/src-tauri/target/
 apps/desktop/src-tauri/gen/
 apps/desktop/src-tauri/icons/*
+!apps/desktop/src-tauri/icons/32x32.png
+!apps/desktop/src-tauri/icons/128x128.png
+!apps/desktop/src-tauri/icons/128x128@2x.png
+!apps/desktop/src-tauri/icons/icon.ico
 !apps/desktop/src-tauri/icons/icon.png
 
 # App local data

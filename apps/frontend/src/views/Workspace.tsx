@@ -30,11 +30,28 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
   const [chaptersLoading, setChaptersLoading] = useState(false);
   const [chaptersError, setChaptersError] = useState<string | null>(null);
 
+  const findNearestSegmentId = (targetStart: number): string | undefined => {
+    if (source.segments.length === 0) return undefined;
+
+    let best = source.segments[0];
+    let bestDelta = Math.abs(best.start - targetStart);
+    for (const seg of source.segments) {
+      const delta = Math.abs(seg.start - targetStart);
+      if (delta < bestDelta) {
+        best = seg;
+        bestDelta = delta;
+      }
+    }
+    return best.id;
+  };
+
   // Handlers
   const handleSegmentClick = (start: number) => {
-    const seg = source.segments.find(s => s.start === start);
-    if(seg) setActiveSegmentId(seg.id);
+    const nearest = findNearestSegmentId(start);
+    if (nearest) setActiveSegmentId(nearest);
+  };
 
+  const handleOpenVideoAt = (start: number) => {
     if (source.sourceType === 'youtube') {
       const deepLink = buildYouTubeTimestampUrl(source.url, start);
       if (deepLink) {
@@ -216,35 +233,63 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
           </div>
         </header>
 
-        {chapters.length > 0 && (
-          <div className="px-4 py-2 border-b border-neutral-900 bg-neutral-950/40">
-            <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Chapters</div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {chapters.map((chapter) => (
-                <button
-                  key={`left-${chapter.id}`}
-                  onClick={() => handleSegmentClick(chapter.start)}
-                  className="shrink-0 text-left px-3 py-2 rounded-md border border-neutral-800 hover:border-primary-700 hover:bg-neutral-900 transition-colors min-w-[170px]"
-                  title="Jump to chapter"
-                >
-                  <div className="text-[11px] text-primary-300 font-mono">
-                    {Math.floor(chapter.start / 60)}:{Math.floor(chapter.start % 60).toString().padStart(2, '0')}
-                  </div>
-                  <div className="text-xs text-neutral-300 truncate">{chapter.title}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Transcript Content */}
         <div className="flex-1 overflow-hidden p-2 bg-neutral-950/30">
-           <TranscriptViewer 
-             segments={source.segments} 
-             onSegmentClick={handleSegmentClick}
-             activeSegmentId={activeSegmentId}
-             className="h-full px-4 scrollbar-hide max-w-4xl mx-auto"
-           />
+          <div className="h-full flex gap-2">
+            <aside className="w-[260px] shrink-0 border border-neutral-900 rounded-lg bg-neutral-950/50 overflow-hidden">
+              <div className="h-10 px-3 border-b border-neutral-900 flex items-center justify-between">
+                <span className="text-[11px] text-neutral-400 uppercase tracking-wider flex items-center gap-2">
+                  <BookOpen size={13} className="text-primary-400" />
+                  Chapters
+                </span>
+                {chapters.length === 0 && sessionConfig?.apiKey && (
+                  <button
+                    onClick={() => void handleGenerateChapters()}
+                    disabled={chaptersLoading}
+                    className="text-[10px] px-2 py-1 rounded border border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500 disabled:opacity-60"
+                  >
+                    {chaptersLoading ? '...' : 'Generate'}
+                  </button>
+                )}
+              </div>
+
+              <div className="h-[calc(100%-40px)] overflow-y-auto p-2 space-y-1">
+                {chapters.length > 0 ? (
+                  chapters.map((chapter) => (
+                    <button
+                      key={chapter.id}
+                      onClick={() => handleSegmentClick(chapter.start)}
+                      className="w-full text-left px-2.5 py-2 rounded-md border border-neutral-800 hover:border-primary-700 hover:bg-neutral-800/70 transition-colors"
+                      title="Jump to chapter text"
+                    >
+                      <div className="text-[11px] text-primary-300 font-mono">
+                        {Math.floor(chapter.start / 60)}:{Math.floor(chapter.start % 60).toString().padStart(2, '0')}
+                      </div>
+                      <div className="text-xs text-neutral-300 line-clamp-2">{chapter.title}</div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-[11px] text-neutral-500 leading-relaxed p-2">
+                    {chaptersLoading
+                      ? 'Building chapter timeline...'
+                      : 'No native chapters found. Add API key and click Generate.'}
+                  </div>
+                )}
+
+                {chaptersError && (
+                  <div className="text-[11px] text-red-400 px-2">{chaptersError}</div>
+                )}
+              </div>
+            </aside>
+
+            <TranscriptViewer
+              segments={source.segments}
+              onSegmentClick={handleSegmentClick}
+              onOpenVideoAt={source.sourceType === 'youtube' ? handleOpenVideoAt : undefined}
+              activeSegmentId={activeSegmentId}
+              className="h-full flex-1 px-4 scrollbar-hide max-w-4xl mx-auto"
+            />
+          </div>
         </div>
       </div>
 
@@ -267,52 +312,6 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
               >
                 <X size={20} />
               </button>
-           </div>
-
-           <div className="px-5 py-3 border-b border-neutral-800 bg-neutral-900/60">
-             <div className="flex items-center justify-between">
-               <span className="text-xs text-neutral-400 uppercase tracking-wider flex items-center gap-2">
-                 <BookOpen size={14} className="text-primary-400" />
-                 Chapters
-               </span>
-               {chapters.length === 0 && sessionConfig?.apiKey && (
-                 <button
-                   onClick={() => void handleGenerateChapters()}
-                   disabled={chaptersLoading}
-                   className="text-[11px] px-2 py-1 rounded border border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500 disabled:opacity-60"
-                 >
-                   {chaptersLoading ? 'Generating...' : 'Generate'}
-                 </button>
-               )}
-             </div>
-
-             {chapters.length > 0 ? (
-               <div className="mt-2 max-h-40 overflow-y-auto space-y-1 pr-1">
-                 {chapters.map((chapter) => (
-                   <button
-                     key={chapter.id}
-                     onClick={() => handleSegmentClick(chapter.start)}
-                     className="w-full text-left px-2.5 py-2 rounded-md border border-neutral-800 hover:border-primary-700 hover:bg-neutral-800/70 transition-colors"
-                     title="Jump to chapter"
-                   >
-                     <div className="text-[11px] text-primary-300 font-mono">
-                       {Math.floor(chapter.start / 60)}:{Math.floor(chapter.start % 60).toString().padStart(2, '0')}
-                     </div>
-                     <div className="text-xs text-neutral-300 truncate">{chapter.title}</div>
-                   </button>
-                 ))}
-               </div>
-             ) : (
-               <div className="mt-2 text-[11px] text-neutral-500">
-                 {chaptersLoading
-                   ? 'Building chapter timeline...'
-                   : 'No native chapters found. Add API key to generate chapters.'}
-               </div>
-             )}
-
-             {chaptersError && (
-               <div className="mt-2 text-[11px] text-red-400">{chaptersError}</div>
-             )}
            </div>
 
            {/* Chat Area */}
