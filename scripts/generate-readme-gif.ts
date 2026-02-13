@@ -6,7 +6,7 @@ import { join } from 'node:path';
 const WIDTH = 480;
 const HEIGHT = 270;
 const FPS = 12;
-const FRAMES = 48;
+const FRAMES = 60;
 const OUTPUT = join(process.cwd(), 'docs/assets/capyap-demo.gif');
 
 type RGB = [number, number, number];
@@ -72,6 +72,11 @@ const glyphs: Record<string, string[]> = {
 const clamp = (v: number, lo = 0, hi = 255) => Math.max(lo, Math.min(hi, v));
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const smoothstep = (edge0: number, edge1: number, x: number) => {
+  if (edge0 === edge1) return x < edge0 ? 0 : 1;
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - (2 * t));
+};
 
 const setPixel = (img: Canvas, x: number, y: number, c: RGB) => {
   if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
@@ -139,7 +144,36 @@ const renderFrame = (frame: number): Canvas => {
   const img = new Uint8Array(WIDTH * HEIGHT * 3);
   blendBg(img, t);
 
-  // Outer chrome
+  const inputPhase = smoothstep(0.02, 0.22, t);
+  const inputFade = 1 - smoothstep(0.24, 0.34, t);
+  const workspaceReveal = smoothstep(0.26, 0.44, t);
+  const keyModalReveal = smoothstep(0.50, 0.62, t) * (1 - smoothstep(0.74, 0.82, t));
+  const agentReveal = smoothstep(0.70, 0.90, t);
+
+  // Intro: paste YouTube link scene.
+  if (inputFade > 0.01) {
+    const cardY = 76 - Math.round((1 - inputFade) * 18);
+    const pulse = 1 + (Math.sin(t * Math.PI * 8) * 0.02);
+    const cardW = Math.round(350 * pulse);
+    const cardX = Math.round((WIDTH - cardW) / 2);
+
+    fillRect(img, cardX, cardY, cardW, 116, COLORS.panel);
+    strokeRect(img, cardX, cardY, cardW, 116, COLORS.accentStrong);
+    drawText(img, 'PASTE YOUTUBE LINK', cardX + 16, cardY + 12, 1, COLORS.text);
+
+    fillRect(img, cardX + 14, cardY + 34, cardW - 28, 30, [9, 13, 25]);
+    strokeRect(img, cardX + 14, cardY + 34, cardW - 28, 30, COLORS.stroke);
+
+    const typed = 'YOUTUBE VIDEO LINK';
+    const typedCount = Math.max(1, Math.floor(typed.length * inputPhase));
+    drawText(img, typed.slice(0, typedCount), cardX + 24, cardY + 45, 1, COLORS.accent);
+
+    fillRect(img, cardX + cardW - 110, cardY + 76, 96, 24, [16, 47, 36]);
+    strokeRect(img, cardX + cardW - 110, cardY + 76, 96, 24, COLORS.accent);
+    drawText(img, inputPhase > 0.78 ? 'TADAA' : 'LOAD', cardX + cardW - 84, cardY + 84, 1, COLORS.text);
+  }
+
+  // Outer app chrome
   fillRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, COLORS.panel);
   strokeRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, COLORS.stroke);
   fillRect(img, 18, 18, WIDTH - 36, 22, COLORS.panelAlt);
@@ -147,13 +181,17 @@ const renderFrame = (frame: number): Canvas => {
   drawText(img, 'LOCAL AI', 372, 24, 1, COLORS.muted);
 
   // Left chapters rail
-  fillRect(img, 32, 52, 140, 188, [10, 16, 30]);
-  strokeRect(img, 32, 52, 140, 188, COLORS.stroke);
-  drawText(img, 'CHAPTERS', 42, 60, 1, COLORS.muted);
+  const railW = Math.max(1, Math.round(140 * workspaceReveal));
+  fillRect(img, 32, 52, railW, 188, [10, 16, 30]);
+  strokeRect(img, 32, 52, railW, 188, COLORS.stroke);
+  if (workspaceReveal > 0.5) {
+    drawText(img, 'CHAPTERS', 42, 60, 1, COLORS.muted);
+  }
 
   const chapterRows = ['INTRO', 'SETUP', 'AGENT CHAT', 'CITATIONS', 'EXPORT HTML'];
-  const selected = Math.floor(t * chapterRows.length) % chapterRows.length;
+  const selected = Math.floor((t * chapterRows.length) + 1) % chapterRows.length;
   for (let i = 0; i < chapterRows.length; i += 1) {
+    if (workspaceReveal <= 0.55) continue;
     const y = 78 + (i * 31);
     const active = i === selected;
     const wobble = Math.round(Math.sin((t * Math.PI * 8) + i) * 2);
@@ -164,15 +202,23 @@ const renderFrame = (frame: number): Canvas => {
   }
 
   // Main transcript/chat pane
-  fillRect(img, 184, 52, 264, 188, [8, 13, 24]);
-  strokeRect(img, 184, 52, 264, 188, COLORS.stroke);
-  drawText(img, 'SESSION KEY NEVER SAVED', 194, 60, 1, COLORS.warning);
+  const mainX = 184;
+  const mainY = 52;
+  const mainW = 264;
+  const mainH = 188;
+  fillRect(img, mainX, mainY, mainW, mainH, [8, 13, 24]);
+  strokeRect(img, mainX, mainY, mainW, mainH, COLORS.stroke);
+  if (workspaceReveal > 0.45) {
+    drawText(img, 'SESSION KEY NEVER SAVED', 194, 60, 1, COLORS.warning);
+  }
 
   // Transcript lines + animated citation pulse
   const pulse = Math.abs(Math.sin(t * Math.PI * 4));
+  const transcriptW = Math.round(220 * (0.76 - (0.32 * agentReveal)));
   for (let i = 0; i < 7; i += 1) {
+    if (workspaceReveal <= 0.35) continue;
     const y = 80 + (i * 18);
-    const w = 220 - ((i % 3) * 24);
+    const w = Math.max(56, transcriptW - ((i % 3) * 18));
     fillRect(img, 194, y, w, 8, [34, 48, 79]);
     if (i === 2 || i === 5) {
       const glow: RGB = [
@@ -185,16 +231,68 @@ const renderFrame = (frame: number): Canvas => {
   }
 
   // Footer actions
-  fillRect(img, 194, 214, 110, 18, [12, 33, 57]);
-  strokeRect(img, 194, 214, 110, 18, COLORS.accentStrong);
-  drawText(img, 'VIEW', 228, 219, 1, COLORS.text);
+  if (workspaceReveal > 0.5) {
+    fillRect(img, 194, 214, 86, 18, [12, 33, 57]);
+    strokeRect(img, 194, 214, 86, 18, COLORS.accentStrong);
+    drawText(img, 'VIEW', 220, 219, 1, COLORS.text);
 
-  fillRect(img, 312, 214, 126, 18, [16, 43, 33]);
-  strokeRect(img, 312, 214, 126, 18, COLORS.accent);
-  drawText(img, 'HTML EXPORT', 334, 219, 1, COLORS.text);
+    fillRect(img, 288, 214, 150, 18, [16, 43, 33]);
+    strokeRect(img, 288, 214, 150, 18, COLORS.accent);
+    drawText(img, 'HTML EXPORT', 328, 219, 1, COLORS.text);
+  }
+
+  // Scene cue: panels opened after link paste.
+  if (t > 0.36 && t < 0.52) {
+    const nudge = Math.round(Math.sin(t * Math.PI * 18) * 2);
+    drawText(img, 'TADAA', 205 + nudge, 72, 2, COLORS.accent);
+  }
+
+  // Secure API key modal scene.
+  if (keyModalReveal > 0.02) {
+    fillRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, [6, 9, 16]);
+    const modalW = 258;
+    const modalH = 102;
+    const modalX = Math.round((WIDTH - modalW) / 2);
+    const modalY = 82;
+    fillRect(img, modalX, modalY, modalW, modalH, COLORS.panel);
+    strokeRect(img, modalX, modalY, modalW, modalH, COLORS.accentStrong);
+    drawText(img, 'SECURE API KEY', modalX + 18, modalY + 14, 1, COLORS.text);
+    drawText(img, 'SESSION ONLY', modalX + 174, modalY + 14, 1, COLORS.warning);
+
+    fillRect(img, modalX + 16, modalY + 34, modalW - 32, 28, [9, 13, 25]);
+    strokeRect(img, modalX + 16, modalY + 34, modalW - 32, 28, COLORS.stroke);
+
+    const keyProgress = smoothstep(0.54, 0.67, t);
+    const hidden = 'XXXXXXXXXXXXXXXX';
+    const chars = Math.max(1, Math.floor(hidden.length * keyProgress));
+    drawText(img, hidden.slice(0, chars), modalX + 26, modalY + 44, 1, COLORS.accent);
+
+    fillRect(img, modalX + modalW - 106, modalY + 70, 90, 20, [16, 47, 36]);
+    strokeRect(img, modalX + modalW - 106, modalY + 70, 90, 20, COLORS.accent);
+    drawText(img, keyProgress > 0.72 ? 'TADAA' : 'START', modalX + modalW - 82, modalY + 77, 1, COLORS.text);
+  }
+
+  // Agent panel appears scene.
+  if (agentReveal > 0.03) {
+    const panelW = Math.max(1, Math.round(112 * agentReveal));
+    const panelX = mainX + mainW - panelW - 4;
+    fillRect(img, panelX, mainY + 4, panelW, mainH - 8, [11, 16, 31]);
+    strokeRect(img, panelX, mainY + 4, panelW, mainH - 8, COLORS.stroke);
+
+    if (agentReveal > 0.45) {
+      drawText(img, 'AGENT', panelX + 12, mainY + 14, 1, COLORS.accent);
+      fillRect(img, panelX + 10, mainY + 30, panelW - 20, 18, [21, 34, 59]);
+      fillRect(img, panelX + 18, mainY + 56, panelW - 28, 18, [16, 47, 36]);
+      fillRect(img, panelX + 10, mainY + 82, panelW - 20, 18, [21, 34, 59]);
+      drawText(img, 'READY', panelX + 20, mainY + 106, 1, COLORS.text);
+      if (agentReveal > 0.72) {
+        drawText(img, 'TADAA', panelX + 16, mainY + 128, 1, COLORS.accent);
+      }
+    }
+  }
 
   // Animated top-right spark
-  const sparkX = 430 + Math.round(Math.sin(t * Math.PI * 6) * 6);
+  const sparkX = 430 + Math.round(Math.sin(t * Math.PI * 8) * 6);
   const sparkY = 84 + Math.round(Math.cos(t * Math.PI * 6) * 4);
   fillRect(img, sparkX, sparkY, 4, 4, COLORS.accent);
   fillRect(img, sparkX - 6, sparkY + 1, 4, 2, COLORS.accent);
