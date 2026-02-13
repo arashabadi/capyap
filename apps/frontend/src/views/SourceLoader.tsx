@@ -3,6 +3,7 @@ import { Youtube, FileText, ArrowRight, Command, UploadCloud, CheckCircle2, Link
 import { Button } from '../components/Button';
 import { SourceMetadata } from '../types';
 import { api } from '../services/api';
+import { APP_VERSION } from '../version';
 
 interface SourceLoaderProps {
   onSourceLoaded: (source: SourceMetadata) => void;
@@ -95,7 +96,12 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
         
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">Capyap</h1>
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <h1 className="text-4xl font-bold text-white tracking-tight">Capyap</h1>
+            <span className="text-xs px-2 py-1 rounded-full border border-neutral-700 text-neutral-300 bg-neutral-900/70 font-mono">
+              {APP_VERSION}
+            </span>
+          </div>
           <p className="text-neutral-400 text-lg">Load a source to start your private research session.</p>
         </div>
 

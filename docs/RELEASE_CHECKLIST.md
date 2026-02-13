@@ -23,6 +23,12 @@ Use this checklist before creating the first public tag.
 - [ ] `npm run build` succeeds.
 - [ ] `capyap start` launches local app.
 
+## Desktop Release Automation
+
+- [ ] `.github/workflows/desktop-release.yml` exists and is valid.
+- [ ] Push a test tag (for example `v1.0.0-rc1`) and confirm all 3 OS jobs pass.
+- [ ] Confirm installers appear under GitHub Releases.
+
 ## Documentation
 
 - [ ] `docs/README.md` points to architecture/dev/security docs.
@@ -37,6 +43,6 @@ Use this checklist before creating the first public tag.
 - [ ] Annotated tag created, for example:
 
 ```bash
-git tag -a v0.1.0 -m "First public release"
-git push origin v0.1.0
+git tag -a v1.0.0 -m "First public release"
+git push origin v1.0.0
 ```

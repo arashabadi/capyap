@@ -8,6 +8,7 @@ import { SourceMetadata, SessionConfig, ChatMessage } from '../types';
 import { api } from '../services/api';
 import { downloadTranscript } from '../services/export';
 import { buildYouTubeTimestampUrl } from '../services/youtube';
+import { APP_VERSION } from '../version';
 
 interface WorkspaceProps {
   source: SourceMetadata;
@@ -177,6 +178,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
           </div>
           
           <div className="flex items-center gap-3">
+             <span className="text-[11px] px-2 py-1 rounded-full border border-neutral-800 text-neutral-400 bg-neutral-900/70 font-mono">
+               {APP_VERSION}
+             </span>
              {/* Export Dropdown */}
              <div className="relative">
                 <Button 

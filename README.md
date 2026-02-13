@@ -53,6 +53,29 @@ Useful flags:
 
 - Latest installers (macOS, Windows, Linux): [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
 
+## Publish Desktop Releases (No Local Build Needed)
+
+Release builds are fully automated in GitHub Actions.
+
+1. Commit and push your changes to `main`.
+2. Create a version tag:
+
+```bash
+git tag -a v1.0.0 -m "Capyap v1.0.0"
+git push origin v1.0.0
+```
+
+3. GitHub Actions runs `Desktop Release` and publishes installers to:
+   [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
+
+The workflow file is:
+- `.github/workflows/desktop-release.yml`
+
+Before creating a public release tag, confirm:
+- `Desktop Build` workflow passes on `macos-latest`, `ubuntu-22.04`, `windows-latest`
+- `Desktop Release` workflow exists and is enabled
+- Desktop icons are committed in `apps/desktop/src-tauri/icons/`
+
 ## Export Options
 
 - `Clean Text (.txt)`: plain transcript text

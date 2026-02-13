@@ -7,6 +7,7 @@ on:
     paths:
       - "apps/**"
       - ".github/workflows/desktop-build.yml"
+      - ".github/workflows/desktop-release.yml"
 
 jobs:
   build:
