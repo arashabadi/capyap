@@ -22,6 +22,7 @@ export const CitationCard: React.FC<CitationCardProps> = ({ citation, onJump }) 
         </span>
         <button 
           onClick={() => onJump?.(citation.timestampStart)}
+          title="Jump to this moment"
           className="flex items-center gap-1.5 text-[10px] font-bold text-primary-400 bg-primary-950/50 border border-primary-900/50 px-2 py-1 rounded hover:bg-primary-900 hover:text-primary-300 transition-colors"
         >
           <Play size={8} className="fill-current" />

@@ -7,6 +7,11 @@ This folder contains a local-first product stack:
 - `desktop/`: Tauri desktop shell for macOS / Windows / Linux
 - `UI_LLM_BRIEF.md`: product overview + page-by-page UI design input for LLMs
 
+For complete technical docs, see:
+- `../docs/README.md`
+- `../docs/DEVELOPMENT_GUIDE.md`
+- `../docs/AGENTIC_SYSTEM_ARCHITECTURE.md`
+
 ## Fast path for local users
 
 Use the root quickstart instead:
@@ -66,4 +71,4 @@ Then run:
 2. Paste a YouTube link or transcript file
 3. Enter provider + API key in the modal session prompt
 4. Ask questions with timestamp-cited answers
-5. Use `Talk to Agent` popup for conversational follow-ups
+5. Click transcript/citation timestamps to open YouTube at that exact moment

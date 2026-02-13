@@ -7,6 +7,7 @@ import { ApiKeyModal } from '../components/ApiKeyModal';
 import { SourceMetadata, SessionConfig, ChatMessage } from '../types';
 import { api } from '../services/api';
 import { downloadTranscript } from '../services/export';
+import { buildYouTubeTimestampUrl } from '../services/youtube';
 
 interface WorkspaceProps {
   source: SourceMetadata;
@@ -30,6 +31,13 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
   const handleSegmentClick = (start: number) => {
     const seg = source.segments.find(s => s.start === start);
     if(seg) setActiveSegmentId(seg.id);
+
+    if (source.sourceType === 'youtube') {
+      const deepLink = buildYouTubeTimestampUrl(source.url, start);
+      if (deepLink) {
+        window.open(deepLink, '_blank', 'noopener,noreferrer');
+      }
+    }
   };
 
   const handleOpenQA = () => {

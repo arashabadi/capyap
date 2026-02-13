@@ -2,10 +2,11 @@
 
 Local-first YouTube transcript assistant with citation-grounded answers.
 
-Capyap gives non-coder users a simple desktop/web workflow:
+Capyap gives non-coder users a simple local workflow:
 - paste a YouTube link (or transcript file)
-- ask questions
+- ask questions in the AI panel
 - get answers with timestamp evidence
+- click timestamps to open YouTube at the exact moment
 
 Privacy rule:
 - Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
@@ -44,23 +45,22 @@ Useful flags:
 - `capyap start --port 8080`
 - `capyap start --host 0.0.0.0`
 
-## Local Files and Clean Git
-
-Generated files stay local and are ignored:
-- `apps/frontend/node_modules/`
-- `apps/frontend/dist/`
-- `apps/desktop/node_modules/`
-- `.capyap/`
-
-The source tree remains lightweight for commits and PRs.
-
 ## Project Structure
 
 - `apps/backend/`: FastAPI + LangGraph agent backend
-- `apps/frontend/`: React/Vite UI (onboarding, Q/A workspace, talk-to-agent popup)
+- `apps/frontend/`: React/Vite UI (source loader + transcript + AI panel)
 - `apps/desktop/`: Tauri desktop shell (macOS/Windows/Linux)
 - `src/youtube_video_summarizer/`: Python package and CLI entrypoints
 - `apps/UI_LLM_BRIEF.md`: page-by-page product/UI brief for design LLMs
+
+## Docs
+
+- `docs/README.md`
+- `docs/AGENTIC_SYSTEM_ARCHITECTURE.md`
+- `docs/DEVELOPMENT_GUIDE.md`
+- `docs/SECURITY_AND_PRIVACY.md`
+- `docs/RELEASE_CHECKLIST.md`
+- `docs/LEGACY_CLI.md`
 
 ## Developer Mode (Optional)
 
@@ -72,9 +72,6 @@ For separate backend/frontend/desktop development flow, see:
 Capyap still exposes the original transcript CLI commands:
 - `yt-extract-summarize`
 - `yt-transcript-chat`
-
-Usage docs:
-- `docs/LEGACY_CLI.md`
 
 ## Troubleshooting
 

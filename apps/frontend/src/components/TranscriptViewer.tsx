@@ -27,6 +27,7 @@ export const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
         <div 
           key={seg.id}
           onClick={() => onSegmentClick(seg.start)}
+          title="Jump to this moment"
           className={`
             p-2 rounded cursor-pointer transition-colors duration-200
             hover:bg-neutral-800/50 group flex gap-4
