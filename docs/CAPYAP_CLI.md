@@ -81,6 +81,7 @@ The web/desktop app export menu supports:
 - `With Timestamps (.txt)`
 - `Raw JSON (.json)`
 - `HTML (.html)` with chapter sidebar, chapter `View` links, segment `View` buttons, and timestamp anchors
+- `PDF (.pdf)` with chapter timeline and timestamped transcript text
 
 ## Python API
 

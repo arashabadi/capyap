@@ -98,6 +98,7 @@ Before creating a public release tag, confirm:
 - `With Timestamps (.txt)`: transcript with `[mm:ss]` markers
 - `Raw JSON (.json)`: structured transcript, metadata, and chapters
 - `HTML (.html)`: readable export with chapter sidebar, chapter `View` links, segment `View` buttons, and timestamp anchors
+- `PDF (.pdf)`: printable transcript document with chapters and timestamps
 
 ## Project Structure
 

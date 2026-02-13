@@ -30,6 +30,7 @@ def load_transcript(payload: TranscriptLoadRequest) -> TranscriptLoadResponse:
     meta = TranscriptMeta(
         transcript_id=transcript["transcript_id"],
         source_label=transcript["source_label"],
+        source_title=transcript.get("source_title"),
         source_url=transcript.get("source_url"),
         chunk_count=len(transcript["chunks"]),
         total_words=transcript["total_words"],

@@ -42,17 +42,20 @@ class TranscriptService:
 
         segments: list[TranscriptSegment]
         source_label: str
+        source_title: str | None = None
         source_url: str | None = None
         chapters: list[dict] = []
 
         path = Path(source)
         if path.exists() and path.is_file():
             source_label = f"file:{path.resolve()}"
+            source_title = path.stem
             segments = self._load_file_segments(path)
         else:
             video_id = self.parse_video_id(source)
             source_label = f"youtube:{video_id}"
             source_url = f"https://www.youtube.com/watch?v={video_id}"
+            source_title = self._fetch_youtube_title(video_id)
             lang_tuple = tuple(lang.strip() for lang in languages.split(",") if lang.strip())
             segments = self._fetch_youtube_segments(video_id, lang_tuple)
             raw_chapters = self._fetch_youtube_chapter_markers(video_id)
@@ -76,6 +79,7 @@ class TranscriptService:
             "transcript_id": transcript_id,
             "source": source,
             "source_label": source_label,
+            "source_title": source_title,
             "source_url": source_url,
             "languages": languages,
             "chunk_words": chunk_words,
@@ -172,6 +176,38 @@ class TranscriptService:
             current_start += 12.0
 
         return segments
+
+    @staticmethod
+    def _fetch_youtube_title(video_id: str) -> str | None:
+        """Fetch video title using YouTube oEmbed endpoint without API key."""
+        watch_url = f"https://www.youtube.com/watch?v={video_id}"
+        try:
+            response = requests.get(
+                "https://www.youtube.com/oembed",
+                params={"url": watch_url, "format": "json"},
+                timeout=12,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Capyap/1.0)",
+                    "Accept-Language": "en-US,en;q=0.9",
+                },
+            )
+        except Exception:
+            return None
+
+        if response.status_code >= 400:
+            return None
+
+        try:
+            payload = response.json()
+        except Exception:
+            return None
+
+        title = payload.get("title")
+        if isinstance(title, str):
+            clean = title.strip()
+            if clean:
+                return clean
+        return None
 
     @staticmethod
     def _fetch_youtube_chapter_markers(video_id: str) -> list[tuple[float, str]]:

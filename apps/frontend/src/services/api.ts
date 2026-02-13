@@ -6,6 +6,7 @@ type TranscriptLoadApiResponse = {
   transcript: {
     transcript_id: string;
     source_label: string;
+    source_title?: string | null;
     source_url?: string | null;
     chunk_count: number;
     total_words: number;
@@ -159,7 +160,15 @@ function sourceTypeFromLabel(sourceLabel: string): "youtube" | "file" {
   return sourceLabel.startsWith("youtube:") ? "youtube" : "file";
 }
 
-function titleFromSource(source: string, sourceLabel: string): string {
+function titleFromSource(
+  source: string,
+  sourceLabel: string,
+  sourceTitle?: string | null,
+): string {
+  if (sourceTitle && sourceTitle.trim()) {
+    return sourceTitle.trim();
+  }
+
   if (sourceLabel.startsWith("youtube:")) {
     return `YouTube Transcript (${sourceLabel.replace("youtube:", "")})`;
   }
@@ -188,7 +197,11 @@ export const api = {
 
     return {
       id: response.transcript.transcript_id,
-      title: titleFromSource(urlOrPath, response.transcript.source_label),
+      title: titleFromSource(
+        urlOrPath,
+        response.transcript.source_label,
+        response.transcript.source_title,
+      ),
       sourceType: sourceTypeFromLabel(response.transcript.source_label),
       chunkCount: response.transcript.chunk_count,
       wordCount: response.transcript.total_words,

@@ -70,6 +70,7 @@ class TranscriptMeta(BaseModel):
 
     transcript_id: str
     source_label: str
+    source_title: str | None = None
     source_url: str | None = None
     chunk_count: int
     total_words: int
