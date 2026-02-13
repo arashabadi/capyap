@@ -20,8 +20,10 @@
 2. Launcher verifies frontend build and starts FastAPI.
 3. Frontend is served by backend SPA routes.
 4. User loads a source (`/api/transcripts/load`).
-5. User asks a question (`/api/agent/chat`) with a session API key.
-6. Backend runs LangGraph and returns answer + citations.
+5. Backend returns native chapters when available.
+6. User asks a question (`/api/agent/chat`) with a session API key.
+7. Backend runs LangGraph and returns answer + citations.
+8. If no native chapters exist, UI can request generated chapters (`/api/agent/chapters`) after API key is provided.
 
 ## LangGraph Pipeline
 
@@ -92,6 +94,7 @@ Storage implementation:
 - `POST /api/settings`
 - `POST /api/transcripts/load`
 - `POST /api/agent/chat`
+- `POST /api/agent/chapters`
 
 ## Extensibility
 

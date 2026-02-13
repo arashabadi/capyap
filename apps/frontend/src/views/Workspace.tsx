@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Sparkles, X, Send, Search, Download, ChevronDown, FileJson, FileText, Clock } from 'lucide-react';
+import { ArrowLeft, Sparkles, X, Send, Search, Download, ChevronDown, FileJson, FileText, Clock, BookOpen } from 'lucide-react';
 import { Button } from '../components/Button';
 import { TranscriptViewer } from '../components/TranscriptViewer';
 import { CitationCard } from '../components/CitationCard';
@@ -26,6 +26,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [chapters, setChapters] = useState(source.chapters || []);
+  const [chaptersLoading, setChaptersLoading] = useState(false);
+  const [chaptersError, setChaptersError] = useState<string | null>(null);
 
   // Handlers
   const handleSegmentClick = (start: number) => {
@@ -52,6 +55,35 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
     setSessionConfig(config);
     setShowKeyModal(false);
     setIsPanelOpen(true);
+    if (chapters.length === 0) {
+      void handleGenerateChapters(config);
+    }
+  };
+
+  const handleGenerateChapters = async (override?: SessionConfig) => {
+    const cfg = override || sessionConfig;
+    if (!cfg?.apiKey) {
+      return;
+    }
+
+    setChaptersLoading(true);
+    setChaptersError(null);
+    try {
+      const generated = await api.generateChapters(
+        cfg.apiKey,
+        cfg.provider,
+        cfg.model,
+        10,
+      );
+      setChapters(generated);
+      if (generated.length === 0) {
+        setChaptersError('Could not generate chapters for this source.');
+      }
+    } catch (err: any) {
+      setChaptersError(err?.message || 'Failed to generate chapters.');
+    } finally {
+      setChaptersLoading(false);
+    }
   };
 
   const handleAsk = async (e: React.FormEvent) => {
@@ -162,7 +194,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
                       </button>
                       <button onClick={() => downloadTranscript(source, 'ipad-html')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <FileText size={16} className="text-neutral-500" />
-                        <span>iPad Reader (.html)</span>
+                        <span>HTML (.html)</span>
                       </button>
                     </div>
                   </>
@@ -183,6 +215,27 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
              )}
           </div>
         </header>
+
+        {chapters.length > 0 && (
+          <div className="px-4 py-2 border-b border-neutral-900 bg-neutral-950/40">
+            <div className="text-[10px] text-neutral-500 uppercase tracking-wider mb-2">Chapters</div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {chapters.map((chapter) => (
+                <button
+                  key={`left-${chapter.id}`}
+                  onClick={() => handleSegmentClick(chapter.start)}
+                  className="shrink-0 text-left px-3 py-2 rounded-md border border-neutral-800 hover:border-primary-700 hover:bg-neutral-900 transition-colors min-w-[170px]"
+                  title="Jump to chapter"
+                >
+                  <div className="text-[11px] text-primary-300 font-mono">
+                    {Math.floor(chapter.start / 60)}:{Math.floor(chapter.start % 60).toString().padStart(2, '0')}
+                  </div>
+                  <div className="text-xs text-neutral-300 truncate">{chapter.title}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Transcript Content */}
         <div className="flex-1 overflow-hidden p-2 bg-neutral-950/30">
@@ -214,6 +267,52 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
               >
                 <X size={20} />
               </button>
+           </div>
+
+           <div className="px-5 py-3 border-b border-neutral-800 bg-neutral-900/60">
+             <div className="flex items-center justify-between">
+               <span className="text-xs text-neutral-400 uppercase tracking-wider flex items-center gap-2">
+                 <BookOpen size={14} className="text-primary-400" />
+                 Chapters
+               </span>
+               {chapters.length === 0 && sessionConfig?.apiKey && (
+                 <button
+                   onClick={() => void handleGenerateChapters()}
+                   disabled={chaptersLoading}
+                   className="text-[11px] px-2 py-1 rounded border border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500 disabled:opacity-60"
+                 >
+                   {chaptersLoading ? 'Generating...' : 'Generate'}
+                 </button>
+               )}
+             </div>
+
+             {chapters.length > 0 ? (
+               <div className="mt-2 max-h-40 overflow-y-auto space-y-1 pr-1">
+                 {chapters.map((chapter) => (
+                   <button
+                     key={chapter.id}
+                     onClick={() => handleSegmentClick(chapter.start)}
+                     className="w-full text-left px-2.5 py-2 rounded-md border border-neutral-800 hover:border-primary-700 hover:bg-neutral-800/70 transition-colors"
+                     title="Jump to chapter"
+                   >
+                     <div className="text-[11px] text-primary-300 font-mono">
+                       {Math.floor(chapter.start / 60)}:{Math.floor(chapter.start % 60).toString().padStart(2, '0')}
+                     </div>
+                     <div className="text-xs text-neutral-300 truncate">{chapter.title}</div>
+                   </button>
+                 ))}
+               </div>
+             ) : (
+               <div className="mt-2 text-[11px] text-neutral-500">
+                 {chaptersLoading
+                   ? 'Building chapter timeline...'
+                   : 'No native chapters found. Add API key to generate chapters.'}
+               </div>
+             )}
+
+             {chaptersError && (
+               <div className="mt-2 text-[11px] text-red-400">{chaptersError}</div>
+             )}
            </div>
 
            {/* Chat Area */}

@@ -50,6 +50,21 @@ class TranscriptChunk(BaseModel):
     end_label: str
 
 
+class TranscriptChapter(BaseModel):
+    """Chapter row for quick navigation and timeline jumps."""
+
+    chapter_id: int
+    title: str
+    start_seconds: float
+    end_seconds: float
+    start_label: str
+    end_label: str
+    source: str = Field(
+        default="youtube",
+        description="`youtube` when parsed from video metadata, `generated` when created by agent.",
+    )
+
+
 class TranscriptMeta(BaseModel):
     """Stored transcript metadata returned to clients."""
 
@@ -65,6 +80,7 @@ class TranscriptLoadResponse(BaseModel):
 
     transcript: TranscriptMeta
     chunks: list[TranscriptChunk] = Field(default_factory=list)
+    chapters: list[TranscriptChapter] = Field(default_factory=list)
 
 
 class ChatTurn(BaseModel):
@@ -112,3 +128,28 @@ class AgentChatResponse(BaseModel):
     source_label: str
     source_url: str | None = None
     citations: list[Citation]
+
+
+class ChapterGenerateRequest(BaseModel):
+    """Request payload for chapter generation from transcript chunks."""
+
+    api_token: str | None = Field(
+        default=None,
+        description="Session-only API token. Required if no native YouTube chapters exist.",
+    )
+    provider: str | None = None
+    model: str | None = None
+    base_url: str | None = None
+    source: str | None = None
+    transcript_id: str | None = None
+    max_chapters: int = Field(default=10, ge=3, le=24)
+
+
+class ChapterGenerateResponse(BaseModel):
+    """Response payload for chapter list in UI side panel."""
+
+    transcript_id: str
+    chapters: list[TranscriptChapter]
+    used_source: str = Field(
+        description="`youtube` for existing video chapters, `generated` for agent-created chapters."
+    )

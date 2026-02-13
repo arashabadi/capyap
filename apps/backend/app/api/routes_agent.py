@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from .schemas import AgentChatRequest, AgentChatResponse, Citation
+from .schemas import (
+    AgentChatRequest,
+    AgentChatResponse,
+    ChapterGenerateRequest,
+    ChapterGenerateResponse,
+    Citation,
+    TranscriptChapter,
+)
+from ..agent.chapters import generate_chapters_from_chunks
 from ..agent.graph import run_agent
 from ..core.dependencies import get_store, get_transcript_service
 
@@ -76,4 +84,71 @@ def chat_with_agent(payload: AgentChatRequest) -> AgentChatResponse:
         source_label=transcript["source_label"],
         source_url=transcript.get("source_url"),
         citations=citations,
+    )
+
+
+@router.post("/chapters", response_model=ChapterGenerateResponse)
+def generate_chapters(payload: ChapterGenerateRequest) -> ChapterGenerateResponse:
+    """Return native YouTube chapters or generate transcript chapters with session LLM."""
+    store = get_store()
+    transcript_service = get_transcript_service()
+    settings = store.load_settings()
+
+    transcript: dict | None = None
+    if payload.transcript_id:
+        transcript = transcript_service.load_by_id(payload.transcript_id)
+
+    if transcript is None and payload.source:
+        transcript = transcript_service.load_or_create(
+            source=payload.source,
+            languages=settings.languages,
+            chunk_words=settings.chunk_words,
+        )
+
+    if transcript is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide source or transcript_id so chapters can be generated.",
+        )
+
+    existing = [TranscriptChapter(**row) for row in transcript.get("chapters", [])]
+    if existing:
+        source = existing[0].source if existing else "youtube"
+        return ChapterGenerateResponse(
+            transcript_id=transcript["transcript_id"],
+            chapters=existing,
+            used_source=source,
+        )
+
+    session_api_token = (payload.api_token or "").strip()
+    if not session_api_token:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "No native chapters found. Provide your session API key to generate chapters. "
+                "Your API key is used directly for this session and is never stored on disk."
+            ),
+        )
+
+    runtime_settings = settings.model_copy(
+        update={
+            "model": (payload.model or settings.model).strip(),
+            "base_url": (payload.base_url or settings.base_url).strip(),
+        }
+    )
+    generated = generate_chapters_from_chunks(
+        settings=runtime_settings,
+        api_token=session_api_token,
+        chunks=transcript["chunks"],
+        max_chapters=payload.max_chapters,
+    )
+    chapters = [TranscriptChapter(**row) for row in generated]
+
+    transcript["chapters"] = [row.model_dump() for row in chapters]
+    store.save_transcript(transcript["transcript_id"], transcript)
+
+    return ChapterGenerateResponse(
+        transcript_id=transcript["transcript_id"],
+        chapters=chapters,
+        used_source="generated",
     )

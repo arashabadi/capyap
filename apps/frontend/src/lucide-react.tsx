@@ -176,3 +176,13 @@ export const File: React.FC<IconProps> = (props) => (
     <path d="M14 2v6h6" />
   </Svg>
 );
+
+export const BookOpen: React.FC<IconProps> = (props) => (
+  <Svg {...props}>
+    <path d="M12 7v14" />
+    <path d="M3 18a2 2 0 0 1 2-2h7" />
+    <path d="M21 18a2 2 0 0 0-2-2h-7" />
+    <path d="M5 4h7v14H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+    <path d="M19 4h-7v14h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z" />
+  </Svg>
+);

@@ -50,7 +50,7 @@ Run all:
 - Source loader: `apps/frontend/src/views/SourceLoader.tsx`
 - API bridge: `apps/frontend/src/services/api.ts`
 - YouTube timestamp deep-link helper: `apps/frontend/src/services/youtube.ts`
-- iPad-friendly export generator: `apps/frontend/src/services/export.ts`
+- HTML export generator: `apps/frontend/src/services/export.ts`
 
 ## Backend Notes
 
@@ -59,10 +59,12 @@ Run all:
   - `apps/backend/app/api/routes_settings.py`
   - `apps/backend/app/api/routes_transcripts.py`
   - `apps/backend/app/api/routes_agent.py`
+  - includes chapter generation endpoint: `POST /api/agent/chapters`
 - LangGraph:
   - `apps/backend/app/agent/state.py`
   - `apps/backend/app/agent/nodes.py`
   - `apps/backend/app/agent/graph.py`
+  - chapter generator helper: `apps/backend/app/agent/chapters.py`
 
 ## Security Constraints (Developer)
 

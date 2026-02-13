@@ -1,4 +1,4 @@
-import { AnswerResponse, Citation, SourceMetadata, TranscriptSegment } from "../types";
+import { AnswerResponse, Chapter, Citation, SourceMetadata, TranscriptSegment } from "../types";
 
 type Provider = "openai" | "anthropic" | "gemini" | "ollama";
 
@@ -18,6 +18,13 @@ type TranscriptLoadApiResponse = {
     start_label: string;
     end_label: string;
   }>;
+  chapters: Array<{
+    chapter_id: number;
+    title: string;
+    start_seconds: number;
+    end_seconds: number;
+    source: "youtube" | "generated";
+  }>;
 };
 
 type AskApiResponse = {
@@ -30,6 +37,18 @@ type AskApiResponse = {
     start_seconds: number;
     end_seconds: number;
     text: string;
+  }>;
+};
+
+type ChaptersApiResponse = {
+  transcript_id: string;
+  used_source: "youtube" | "generated";
+  chapters: Array<{
+    chapter_id: number;
+    title: string;
+    start_seconds: number;
+    end_seconds: number;
+    source: "youtube" | "generated";
   }>;
 };
 
@@ -93,6 +112,22 @@ function toCitations(items: AskApiResponse["citations"]): Citation[] {
   }));
 }
 
+function toChapters(items: Array<{
+  chapter_id: number;
+  title: string;
+  start_seconds: number;
+  end_seconds: number;
+  source: "youtube" | "generated";
+}>): Chapter[] {
+  return items.map((chapter) => ({
+    id: `chapter-${chapter.chapter_id}`,
+    title: chapter.title,
+    start: chapter.start_seconds,
+    end: chapter.end_seconds,
+    source: chapter.source,
+  }));
+}
+
 function sourceTypeFromLabel(sourceLabel: string): "youtube" | "file" {
   return sourceLabel.startsWith("youtube:") ? "youtube" : "file";
 }
@@ -128,6 +163,7 @@ export const api = {
       wordCount: response.transcript.total_words,
       url: response.transcript.source_url || urlOrPath,
       segments: toSegments(response.chunks || []),
+      chapters: toChapters(response.chapters || []),
     };
   },
 
@@ -174,5 +210,31 @@ export const api = {
     model: string
   ): Promise<AnswerResponse> => {
     return api.askQuestion(message, apiKey, model, provider, history);
+  },
+
+  generateChapters: async (
+    apiKey: string,
+    provider: Provider,
+    model: string,
+    maxChapters = 10
+  ): Promise<Chapter[]> => {
+    const defaults = providerDefaults[provider] || providerDefaults.openai;
+    const resolvedModel = model && model !== "default" ? model : defaults.model;
+
+    const response = await request<ChaptersApiResponse>("/api/agent/chapters", {
+      method: "POST",
+      headers: JSON_HEADERS,
+      body: JSON.stringify({
+        api_token: apiKey || undefined,
+        provider,
+        model: resolvedModel,
+        base_url: defaults.baseUrl,
+        transcript_id: currentSourceContext.transcriptId,
+        source: currentSourceContext.source,
+        max_chapters: maxChapters,
+      }),
+    });
+
+    return toChapters(response.chapters || []);
   },
 };

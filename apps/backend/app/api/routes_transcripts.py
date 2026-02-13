@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from .schemas import (
+    TranscriptChapter,
     TranscriptChunk,
     TranscriptLoadRequest,
     TranscriptLoadResponse,
@@ -34,4 +35,5 @@ def load_transcript(payload: TranscriptLoadRequest) -> TranscriptLoadResponse:
         total_words=transcript["total_words"],
     )
     chunks = [TranscriptChunk(**chunk) for chunk in transcript["chunks"]]
-    return TranscriptLoadResponse(transcript=meta, chunks=chunks)
+    chapters = [TranscriptChapter(**item) for item in transcript.get("chapters", [])]
+    return TranscriptLoadResponse(transcript=meta, chunks=chunks, chapters=chapters)

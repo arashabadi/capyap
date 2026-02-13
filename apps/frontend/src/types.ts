@@ -37,6 +37,14 @@ export interface TranscriptSegment {
   text: string;
 }
 
+export interface Chapter {
+  id: string;
+  title: string;
+  start: number;
+  end: number;
+  source: 'youtube' | 'generated';
+}
+
 export interface SourceMetadata {
   id: string;
   title: string;
@@ -45,6 +53,7 @@ export interface SourceMetadata {
   wordCount: number;
   url?: string;
   segments: TranscriptSegment[]; // Full transcript available immediately
+  chapters: Chapter[];
 }
 
 export interface ApiError {

@@ -2,15 +2,26 @@
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+import requests
 from youtube_transcript_api import YouTubeTranscriptApi
 
 from .chunking import TranscriptSegment, chunk_segments
 from .storage import LocalStore
-from .text_utils import normalize_text
+from .text_utils import format_timestamp, normalize_text
+
+
+_SHORT_DESCRIPTION_RE = re.compile(
+    r'"shortDescription":"((?:\\.|[^"\\])*)"',
+    flags=re.DOTALL,
+)
+_CHAPTER_LINE_RE = re.compile(
+    r"^\s*(?P<stamp>(?:\d{1,2}:)?\d{1,2}:\d{2})\s+(?P<title>.+?)\s*$"
+)
 
 
 class TranscriptService:
@@ -31,6 +42,7 @@ class TranscriptService:
         segments: list[TranscriptSegment]
         source_label: str
         source_url: str | None = None
+        chapters: list[dict] = []
 
         path = Path(source)
         if path.exists() and path.is_file():
@@ -42,6 +54,19 @@ class TranscriptService:
             source_url = f"https://www.youtube.com/watch?v={video_id}"
             lang_tuple = tuple(lang.strip() for lang in languages.split(",") if lang.strip())
             segments = self._fetch_youtube_segments(video_id, lang_tuple)
+            raw_chapters = self._fetch_youtube_chapter_markers(video_id)
+            transcript_end = (
+                max(
+                    (
+                        float(seg["start_seconds"]) + float(seg["duration_seconds"])
+                        for seg in segments
+                    ),
+                    default=0.0,
+                )
+                if segments
+                else 0.0
+            )
+            chapters = self._finalize_chapters(raw_chapters, transcript_end, source="youtube")
 
         chunks = chunk_segments(segments, words_per_chunk=chunk_words)
         word_count = sum(len(chunk["text"].split()) for chunk in chunks)
@@ -55,6 +80,7 @@ class TranscriptService:
             "chunk_words": chunk_words,
             "segments": segments,
             "chunks": chunks,
+            "chapters": chapters,
             "total_words": word_count,
         }
 
@@ -145,3 +171,103 @@ class TranscriptService:
             current_start += 12.0
 
         return segments
+
+    @staticmethod
+    def _fetch_youtube_chapter_markers(video_id: str) -> list[tuple[float, str]]:
+        """Parse chapter timestamp markers from YouTube watch-page description."""
+        url = f"https://www.youtube.com/watch?v={video_id}"
+        try:
+            response = requests.get(
+                url,
+                timeout=20,
+                headers={"User-Agent": "Mozilla/5.0 (Capyap/1.0)"},
+            )
+        except Exception:
+            return []
+
+        if response.status_code >= 400:
+            return []
+
+        description = TranscriptService._extract_short_description(response.text)
+        if not description:
+            return []
+
+        markers: list[tuple[float, str]] = []
+        for line in description.splitlines():
+            match = _CHAPTER_LINE_RE.match(line)
+            if not match:
+                continue
+
+            seconds = TranscriptService._parse_timestamp_to_seconds(match.group("stamp"))
+            title = match.group("title").strip().lstrip("-|:–— ").strip()
+            if not title:
+                continue
+            markers.append((seconds, title))
+
+        if len(markers) < 2:
+            return []
+
+        unique: dict[int, str] = {}
+        for seconds, title in markers:
+            key = int(max(0, round(seconds)))
+            if key not in unique:
+                unique[key] = title
+
+        ordered = sorted(unique.items(), key=lambda item: item[0])
+        return [(float(sec), title) for sec, title in ordered]
+
+    @staticmethod
+    def _extract_short_description(watch_html: str) -> str:
+        match = _SHORT_DESCRIPTION_RE.search(watch_html)
+        if not match:
+            return ""
+
+        encoded = match.group(1)
+        try:
+            return json.loads(f'"{encoded}"')
+        except Exception:
+            return ""
+
+    @staticmethod
+    def _parse_timestamp_to_seconds(value: str) -> float:
+        parts = [int(piece) for piece in value.strip().split(":")]
+        if len(parts) == 2:
+            minutes, seconds = parts
+            return float(minutes * 60 + seconds)
+        if len(parts) == 3:
+            hours, minutes, seconds = parts
+            return float(hours * 3600 + minutes * 60 + seconds)
+        return 0.0
+
+    @staticmethod
+    def _finalize_chapters(
+        markers: list[tuple[float, str]],
+        transcript_end: float,
+        *,
+        source: str,
+    ) -> list[dict]:
+        if not markers:
+            return []
+
+        ordered = sorted(markers, key=lambda item: item[0])
+        if ordered[0][0] > 0.0:
+            ordered.insert(0, (0.0, "Introduction"))
+
+        end_limit = max(float(transcript_end), ordered[-1][0] + 1.0)
+        chapters: list[dict] = []
+        for idx, (start, title) in enumerate(ordered, start=1):
+            next_start = ordered[idx][0] if idx < len(ordered) else end_limit
+            end = max(start + 1.0, next_start)
+            chapters.append(
+                {
+                    "chapter_id": idx,
+                    "title": title,
+                    "start_seconds": float(start),
+                    "end_seconds": float(end),
+                    "start_label": format_timestamp(float(start)),
+                    "end_label": format_timestamp(float(end)),
+                    "source": source,
+                }
+            )
+
+        return chapters
