@@ -49,6 +49,17 @@ Useful flags:
 - `capyap start --port 8080`
 - `capyap start --host 0.0.0.0`
 
+## Developer Environment
+
+For full app development (backend + frontend + desktop build toolchain):
+
+```bash
+conda env create -f capyap-dev.yml
+conda activate capyap_dev
+npm --prefix apps/frontend install
+npm --prefix apps/desktop install --include=dev
+```
+
 ## Desktop Downloads
 
 - Latest installers (macOS, Windows, Linux): [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
@@ -69,7 +80,7 @@ git push origin v1.0.0
    [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
 
 Release assets include:
-- macOS: `.app.tar.gz`
+- macOS: `.dmg` and `.app.tar.gz`
 - Windows: `.msi` and/or `.exe` (NSIS)
 - Linux: `.deb`, `.rpm`, `.AppImage`
 

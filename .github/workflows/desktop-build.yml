@@ -16,7 +16,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            bundles: app
+            bundles: app,dmg
           - os: ubuntu-22.04
             bundles: deb,rpm,appimage
           - os: windows-latest

@@ -1,0 +1,14 @@
+name: capyap_dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - nodejs=20
+  - rust
+  - ffmpeg
+  - pip
+  - pyyaml
+  - pytest
+  - pip:
+      - -e .
