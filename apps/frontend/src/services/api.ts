@@ -1,6 +1,6 @@
 import { AnswerResponse, Chapter, Citation, SourceMetadata, TranscriptSegment } from "../types";
 
-type Provider = "openai" | "anthropic" | "gemini" | "ollama";
+export type Provider = "openai" | "anthropic" | "gemini" | "ollama";
 
 type TranscriptLoadApiResponse = {
   transcript: {
@@ -53,6 +53,19 @@ type ChaptersApiResponse = {
   }>;
 };
 
+type OllamaStatusApiResponse = {
+  reachable: boolean;
+  base_url: string;
+  version?: string | null;
+  has_models: boolean;
+  models: string[];
+  recommended_model: string;
+  install_url: string;
+  message: string;
+};
+
+export type OllamaStatus = OllamaStatusApiResponse;
+
 const providerDefaults: Record<Provider, { baseUrl: string; model: string }> = {
   gemini: {
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -67,7 +80,7 @@ const providerDefaults: Record<Provider, { baseUrl: string; model: string }> = {
     model: "anthropic/claude-3.5-sonnet",
   },
   ollama: {
-    baseUrl: "http://localhost:11434/v1",
+    baseUrl: "http://127.0.0.1:11434/v1",
     model: "llama3.1",
   },
 };
@@ -321,5 +334,13 @@ export const api = {
     });
 
     return toChapters(response.chapters || []);
+  },
+
+  getOllamaStatus: async (baseUrl?: string): Promise<OllamaStatus> => {
+    const query = baseUrl ? `?base_url=${encodeURIComponent(baseUrl)}` : "";
+    return request<OllamaStatusApiResponse>(`/api/settings/ollama/status${query}`, {
+      method: "GET",
+      headers: JSON_HEADERS,
+    });
   },
 };

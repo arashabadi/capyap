@@ -62,6 +62,7 @@ Run all:
   - `apps/backend/app/api/routes_settings.py`
   - `apps/backend/app/api/routes_transcripts.py`
   - `apps/backend/app/api/routes_agent.py`
+  - includes local Ollama status endpoint: `GET /api/settings/ollama/status`
   - includes chapter generation endpoint: `POST /api/agent/chapters`
 - LangGraph:
   - `apps/backend/app/agent/state.py`

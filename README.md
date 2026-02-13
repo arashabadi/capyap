@@ -37,6 +37,10 @@ What happens:
 3. Choose provider and paste your API key for this session.
 4. Ask questions and review timestamp citations.
 
+Ollama option:
+- If you choose `ollama`, no cloud key is required.
+- Install/setup guide: `docs/OLLAMA_SETUP.md`
+
 ## Daily Usage
 
 ```bash
@@ -114,6 +118,7 @@ Before creating a public release tag, confirm:
 - `docs/AGENTIC_SYSTEM_ARCHITECTURE.md`
 - `docs/DEVELOPMENT_GUIDE.md`
 - `docs/SECURITY_AND_PRIVACY.md`
+- `docs/OLLAMA_SETUP.md`
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/CAPYAP_CLI.md`
 

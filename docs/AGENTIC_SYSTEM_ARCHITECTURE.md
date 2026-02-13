@@ -21,9 +21,10 @@
 3. Frontend is served by backend SPA routes.
 4. User loads a source (`/api/transcripts/load`).
 5. Backend returns native chapters when available.
-6. User asks a question (`/api/agent/chat`) with a session API key.
-7. Backend runs LangGraph and returns answer + citations.
-8. If no native chapters exist, UI can request generated chapters (`/api/agent/chapters`) after API key is provided.
+6. User configures provider in session modal (`/api/settings/ollama/status` is used for local Ollama checks).
+7. User asks a question (`/api/agent/chat`) with a session API key (or local Ollama).
+8. Backend runs LangGraph and returns answer + citations.
+9. If no native chapters exist, UI can request generated chapters (`/api/agent/chapters`) after provider setup.
 
 ## LangGraph Pipeline
 
@@ -99,6 +100,7 @@ Storage implementation:
 
 - `GET /health`
 - `GET /api/settings`
+- `GET /api/settings/ollama/status`
 - `POST /api/settings`
 - `POST /api/transcripts/load`
 - `POST /api/agent/chat`

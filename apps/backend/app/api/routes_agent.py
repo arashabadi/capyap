@@ -19,6 +19,16 @@ from ..core.dependencies import get_store, get_transcript_service
 router = APIRouter(prefix="/api/agent", tags=["agent"])
 
 
+def _is_ollama_request(provider: str | None, base_url: str | None) -> bool:
+    """Detect local Ollama runtime from explicit provider or base URL."""
+    provider_name = (provider or "").strip().lower()
+    if provider_name == "ollama":
+        return True
+
+    normalized_base = (base_url or "").strip().lower()
+    return "localhost:11434" in normalized_base or "127.0.0.1:11434" in normalized_base
+
+
 @router.post("/chat", response_model=AgentChatResponse)
 def chat_with_agent(payload: AgentChatRequest) -> AgentChatResponse:
     """Answer user questions with timestamp-aware transcript citations."""
@@ -27,12 +37,15 @@ def chat_with_agent(payload: AgentChatRequest) -> AgentChatResponse:
     settings = store.load_settings()
 
     session_api_token = (payload.api_token or "").strip()
+    if not session_api_token and _is_ollama_request(payload.provider, payload.base_url):
+        session_api_token = "ollama-local"
     if not session_api_token:
         raise HTTPException(
             status_code=400,
             detail=(
-                "Missing session API token. Your API key is used directly for this session "
-                "and is never stored on disk. Capyap runs locally on your machine."
+                "Missing session API token. For cloud providers, your API key is used directly "
+                "for this session and is never stored on disk. For local Ollama, choose provider "
+                "`ollama` and keep your Ollama server running."
             ),
         )
 
@@ -121,12 +134,15 @@ def generate_chapters(payload: ChapterGenerateRequest) -> ChapterGenerateRespons
         )
 
     session_api_token = (payload.api_token or "").strip()
+    if not session_api_token and _is_ollama_request(payload.provider, payload.base_url):
+        session_api_token = "ollama-local"
     if not session_api_token:
         raise HTTPException(
             status_code=400,
             detail=(
-                "No native chapters found. Provide your session API key to generate chapters. "
-                "Your API key is used directly for this session and is never stored on disk."
+                "No native chapters found. For cloud providers, provide your session API key to "
+                "generate chapters. For local Ollama, select provider `ollama` and keep local "
+                "Ollama running."
             ),
         )
 

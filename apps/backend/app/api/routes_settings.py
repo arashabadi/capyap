@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from .schemas import SaveSettingsRequest, SettingsResponse
-from ..core.dependencies import get_store
+from .schemas import OllamaStatusResponse, SaveSettingsRequest, SettingsResponse
+from ..core.dependencies import get_ollama_service, get_store
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -23,3 +23,10 @@ def save_settings(payload: SaveSettingsRequest) -> SettingsResponse:
     """Persist onboarding settings without any API token."""
     saved = get_store().save_settings(payload.settings)
     return SettingsResponse(settings=saved, is_configured=True)
+
+
+@router.get("/ollama/status", response_model=OllamaStatusResponse)
+def get_ollama_status(base_url: str | None = None) -> OllamaStatusResponse:
+    """Check whether local Ollama is reachable and has installed models."""
+    status = get_ollama_service().get_status(base_url=base_url)
+    return OllamaStatusResponse(**status)

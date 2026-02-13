@@ -20,8 +20,9 @@ Relevant files:
 
 ### Backend
 
-- `/api/agent/chat` requires `api_token` in request body.
-- Missing session key is rejected with a clear error.
+- `/api/agent/chat` requires `api_token` for cloud providers.
+- Local Ollama runs without a cloud key (a local placeholder token is used in-memory).
+- Missing cloud-provider session key is rejected with a clear error.
 - LLM calls use only the provided session token.
 
 Relevant files:

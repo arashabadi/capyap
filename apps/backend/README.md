@@ -21,6 +21,7 @@ uvicorn app.main:app --reload --port 8000
 
 - `GET /health`
 - `GET /api/settings`
+- `GET /api/settings/ollama/status`
 - `POST /api/settings`
 - `POST /api/transcripts/load`
 - `POST /api/agent/chat`

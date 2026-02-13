@@ -31,6 +31,19 @@ class SaveSettingsRequest(BaseModel):
     settings: LLMSettings
 
 
+class OllamaStatusResponse(BaseModel):
+    """Local Ollama runtime status for first-time setup UX."""
+
+    reachable: bool
+    base_url: str
+    version: str | None = None
+    has_models: bool
+    models: list[str] = Field(default_factory=list)
+    recommended_model: str = Field(default="llama3.1")
+    install_url: str = Field(default="https://ollama.com/download")
+    message: str
+
+
 class TranscriptLoadRequest(BaseModel):
     """Request payload for loading transcript data."""
 
