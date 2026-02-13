@@ -15,6 +15,20 @@ Capyap gives non-coder users a simple local workflow:
 Privacy rule:
 - Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
 
+## Desktop Apps (macOS / Windows / Linux)
+
+- Latest installers: [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
+- Desktop app can auto-start the local backend at `127.0.0.1:8000` on launch.
+- If auto-start fails, run manually:
+  - `conda activate capyap` (or `capyap_dev`)
+  - `capyap start --no-browser`
+
+## Free Local Agents (Ollama)
+
+- You can run Capyap agents fully local with Ollama for free.
+- No cloud API key is required when provider is `ollama`.
+- Setup guide: `docs/OLLAMA_SETUP.md`
+
 ## Quickstart (Recommended)
 
 ```bash
@@ -63,13 +77,6 @@ conda activate capyap_dev
 npm --prefix apps/frontend install
 npm --prefix apps/desktop install --include=dev
 ```
-
-## Desktop Downloads
-
-- Latest installers (macOS, Windows, Linux): [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
-- Current desktop shell expects a local backend on `127.0.0.1:8000`; start it first with:
-  - `conda activate capyap`
-  - `capyap start --no-browser`
 
 ## Publish Desktop Releases (No Local Build Needed)
 

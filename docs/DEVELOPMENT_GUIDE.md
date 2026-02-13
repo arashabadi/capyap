@@ -38,6 +38,10 @@ Run desktop mode:
 ./scripts/dev-desktop.sh
 ```
 
+Notes:
+- `./scripts/dev-desktop.sh` expects backend already running (dev workflow).
+- Packaged desktop app (`tauri build`) includes backend auto-start attempts on launch.
+
 Run all:
 
 ```bash
@@ -49,6 +53,7 @@ Run all:
 - Main workspace UI: `apps/frontend/src/views/Workspace.tsx`
 - Source loader: `apps/frontend/src/views/SourceLoader.tsx`
 - API bridge: `apps/frontend/src/services/api.ts`
+- External URL opener bridge: `apps/frontend/src/services/external.ts`
 - YouTube timestamp deep-link helper: `apps/frontend/src/services/youtube.ts`
 - HTML export generator: `apps/frontend/src/services/export.ts`
 - README GIF generator (TypeScript): `scripts/generate-readme-gif.ts`

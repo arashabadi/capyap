@@ -282,10 +282,53 @@ fn stop_backend(mut child: Child) {
     let _ = child.wait();
 }
 
+#[tauri::command]
+fn open_external_url(url: String) -> Result<(), String> {
+    let trimmed = url.trim();
+    if trimmed.is_empty() {
+        return Err("URL is empty.".to_string());
+    }
+    if !trimmed.starts_with("http://") && !trimmed.starts_with("https://") {
+        return Err("Only http/https URLs are supported.".to_string());
+    }
+
+    #[cfg(target_os = "macos")]
+    let mut command = {
+        let mut cmd = Command::new("open");
+        cmd.arg(trimmed);
+        cmd
+    };
+
+    #[cfg(target_os = "linux")]
+    let mut command = {
+        let mut cmd = Command::new("xdg-open");
+        cmd.arg(trimmed);
+        cmd
+    };
+
+    #[cfg(target_os = "windows")]
+    let mut command = {
+        let mut cmd = Command::new("rundll32");
+        cmd.arg("url.dll,FileProtocolHandler");
+        cmd.arg(trimmed);
+        cmd
+    };
+
+    command
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .map_err(|err| format!("Failed to open URL in system browser: {err}"))?;
+
+    Ok(())
+}
+
 fn main() {
     let mut backend_child = ensure_backend();
 
     tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![open_external_url])
         .build(tauri::generate_context!())
         .expect("error while building Capyap desktop app")
         .run(move |_app_handle, event| {

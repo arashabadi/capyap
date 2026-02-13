@@ -4,6 +4,7 @@ import { Input } from './Input';
 import { Button } from './Button';
 import { SessionConfig } from '../types';
 import { api, OllamaStatus } from '../services/api';
+import { openExternalUrl } from '../services/external';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -149,14 +150,15 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
                  </div>
 
                  <div className="flex items-center justify-between">
-                   <a
-                     href={ollamaStatus?.install_url || 'https://ollama.com/download'}
-                     target="_blank"
-                     rel="noopener noreferrer"
+                   <button
+                     type="button"
+                     onClick={() => void openExternalUrl(ollamaStatus?.install_url || 'https://ollama.com/download').catch((err) => {
+                       console.error('Failed to open Ollama install URL:', err);
+                     })}
                      className="text-primary-400 hover:text-primary-300 underline"
                    >
                      Install Ollama
-                   </a>
+                   </button>
                    <Button
                      type="button"
                      size="sm"

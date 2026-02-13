@@ -26,6 +26,13 @@
 8. Backend runs LangGraph and returns answer + citations.
 9. If no native chapters exist, UI can request generated chapters (`/api/agent/chapters`) after provider setup.
 
+Desktop packaging flow:
+
+1. User launches `Capyap.app`.
+2. Tauri shell checks `http://127.0.0.1:8000/health`.
+3. If backend is not up, desktop tries to auto-start `capyap start --no-browser`.
+4. Frontend calls the same local API surface as web mode.
+
 ## LangGraph Pipeline
 
 Graph state and nodes are in:
@@ -74,6 +81,7 @@ Node order:
 - Chapters render in a vertical side rail; selecting one jumps to the nearest transcript chunk.
 - Citation cards include timestamp jump controls.
 - For YouTube sources, `View` controls open browser at exact timestamp.
+- Desktop runtime uses a native Tauri command to open external URLs (`Install Ollama`, `View` links).
 - HTML export includes transcript chunks, chapter anchors, and chapter/chunk `View` links.
 
 ## Timestamp Deep-Link Behavior

@@ -53,7 +53,7 @@ Then run:
 - Backend: `http://127.0.0.1:8000`
 - Frontend: `http://127.0.0.1:5173`
 
-## 3) Run desktop app (requires backend running)
+## 3) Run desktop app in dev mode (requires backend running)
 
 ```bash
 ./scripts/dev-desktop.sh
@@ -65,6 +65,10 @@ If the desktop window shows load/connect errors, run backend first in another te
 conda activate capyap
 capyap start --no-browser
 ```
+
+Packaged app note:
+- Release desktop builds attempt to auto-start backend on launch.
+- If auto-start cannot find your environment, run `capyap start --no-browser` manually.
 
 ## 4) One-command backend + desktop + localhost web
 
@@ -79,3 +83,7 @@ capyap start --no-browser
 3. Enter provider + API key in the modal session prompt
 4. Ask questions with timestamp-cited answers
 5. Click transcript/citation timestamps to open YouTube at that exact moment
+
+Ollama:
+- You can run local agents for free with provider `ollama`.
+- No cloud API key is required for Ollama mode.

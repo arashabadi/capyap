@@ -1,6 +1,6 @@
 # Ollama Setup (Local Capyap)
 
-Use this guide if you want Capyap agents to run on local Ollama models.
+Use this guide if you want Capyap agents to run on local Ollama models for free.
 
 ## 1) Install Ollama
 
@@ -27,6 +27,14 @@ capyap start
 ```
 
 Capyap runs locally and the backend serves the app on localhost.
+
+Desktop app note:
+- Packaged desktop builds try to auto-start backend.
+- If desktop cannot connect, run this command manually and keep it open:
+
+```bash
+capyap start --no-browser
+```
 
 ## 4) In Capyap, choose Ollama
 

@@ -7,6 +7,7 @@ import { ApiKeyModal } from '../components/ApiKeyModal';
 import { SourceMetadata, SessionConfig, ChatMessage } from '../types';
 import { api } from '../services/api';
 import { ExportFormat, downloadTranscript } from '../services/export';
+import { openExternalUrl } from '../services/external';
 import { buildYouTubeTimestampUrl } from '../services/youtube';
 import { APP_VERSION } from '../version';
 
@@ -57,7 +58,9 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
     if (source.sourceType === 'youtube') {
       const deepLink = buildYouTubeTimestampUrl(source.url, start);
       if (deepLink) {
-        window.open(deepLink, '_blank', 'noopener,noreferrer');
+        void openExternalUrl(deepLink).catch((err) => {
+          console.error("Failed to open external video link:", err);
+        });
       }
     }
   };
