@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "build": "./scripts/build-frontend.sh"
+    "build": "./scripts/build-frontend.sh",
+    "build:gif": "./scripts/make-readme-gif.sh"
   }
 }

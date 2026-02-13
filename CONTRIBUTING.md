@@ -32,4 +32,4 @@ yt-transcript-chat --help
 
 - Keep changes focused and documented
 - Add or update tests when behavior changes
-- Update docs (`README.md`, `docs/LEGACY_CLI.md`, `apps/README.md`) for CLI/flag changes
+- Update docs (`README.md`, `docs/CAPYAP_CLI.md`, `apps/README.md`) for CLI/flag changes

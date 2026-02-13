@@ -51,6 +51,9 @@ Run all:
 - API bridge: `apps/frontend/src/services/api.ts`
 - YouTube timestamp deep-link helper: `apps/frontend/src/services/youtube.ts`
 - HTML export generator: `apps/frontend/src/services/export.ts`
+- README GIF generator (TypeScript): `scripts/generate-readme-gif.ts`
+- GIF build helper: `scripts/make-readme-gif.sh`
+- One-command GIF rebuild: `npm run build:gif`
 
 ## Backend Notes
 

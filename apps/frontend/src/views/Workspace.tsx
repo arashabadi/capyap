@@ -209,7 +209,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
                         <FileJson size={16} className="text-neutral-500" />
                         <span>Raw JSON (.json)</span>
                       </button>
-                      <button onClick={() => downloadTranscript(source, 'ipad-html')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
+                      <button onClick={() => downloadTranscript(source, 'html')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <FileText size={16} className="text-neutral-500" />
                         <span>HTML (.html)</span>
                       </button>

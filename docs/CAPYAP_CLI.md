@@ -1,6 +1,6 @@
-# Legacy CLI Commands
+# Capyap CLI
 
-This project keeps two original CLI tools for script-based workflows.
+This repo includes two script-friendly CLI commands for transcript workflows.
 
 ## Install
 
@@ -11,7 +11,9 @@ conda env create -f capyap.yml
 conda activate capyap
 ```
 
-## 1) Extract + Summarize
+## CLI Commands
+
+### 1) Extract + Summarize
 
 ```bash
 yt-extract-summarize "https://youtu.be/ZbTVXrhesJY" --summary-sentences 10 --out-dir output
@@ -21,9 +23,9 @@ Outputs:
 - `output/<video_id>.transcript.txt`
 - `output/<video_id>.summary.txt`
 
-## 2) Chat with Transcript
+### 2) Chat with Transcript
 
-Set token with env var (recommended):
+Set token with env var at runtime:
 
 macOS/Linux:
 
@@ -37,7 +39,7 @@ Windows PowerShell:
 $env:LLM_API_TOKEN="your_token_here"
 ```
 
-### OpenAI example
+OpenAI example:
 
 ```bash
 yt-transcript-chat "https://youtu.be/ZbTVXrhesJY" \
@@ -45,7 +47,7 @@ yt-transcript-chat "https://youtu.be/ZbTVXrhesJY" \
   --base-url https://api.openai.com/v1
 ```
 
-### OpenRouter example
+OpenRouter example:
 
 ```bash
 yt-transcript-chat "https://youtu.be/ZbTVXrhesJY" \
@@ -53,7 +55,7 @@ yt-transcript-chat "https://youtu.be/ZbTVXrhesJY" \
   --base-url https://openrouter.ai/api/v1
 ```
 
-### Local OpenAI-compatible server example
+Local OpenAI-compatible server example:
 
 ```bash
 yt-transcript-chat output/ZbTVXrhesJY.transcript.txt \
@@ -62,7 +64,7 @@ yt-transcript-chat output/ZbTVXrhesJY.transcript.txt \
   --api-token not-used
 ```
 
-### One-shot Q/A mode
+One-shot Q/A mode:
 
 ```bash
 yt-transcript-chat output/ZbTVXrhesJY.transcript.txt \
@@ -70,6 +72,15 @@ yt-transcript-chat output/ZbTVXrhesJY.transcript.txt \
   --model gpt-4o-mini \
   --base-url https://api.openai.com/v1
 ```
+
+## Export Options (UI)
+
+The web/desktop app export menu supports:
+
+- `Clean Text (.txt)`
+- `With Timestamps (.txt)`
+- `Raw JSON (.json)`
+- `HTML (.html)` with chapter sidebar, chapter `View` links, segment `View` buttons, and timestamp anchors
 
 ## Python API
 

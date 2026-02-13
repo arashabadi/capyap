@@ -70,8 +70,10 @@ Node order:
 
 - Source loader accepts YouTube URLs or local transcript files.
 - Workspace has transcript panel + agent chat panel.
+- Chapters render in a vertical side rail; selecting one jumps to the nearest transcript chunk.
 - Citation cards include timestamp jump controls.
-- For YouTube sources, clicking transcript/citation timestamps opens browser at exact time.
+- For YouTube sources, `View` controls open browser at exact timestamp.
+- HTML export includes transcript chunks, chapter anchors, and chapter/chunk `View` links.
 
 ## Timestamp Deep-Link Behavior
 

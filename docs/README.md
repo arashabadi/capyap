@@ -8,4 +8,4 @@ This folder contains technical documentation for Capyap.
 - [Development Guide](DEVELOPMENT_GUIDE.md)
 - [Security and Privacy](SECURITY_AND_PRIVACY.md)
 - [Release Checklist](RELEASE_CHECKLIST.md)
-- [Legacy CLI](LEGACY_CLI.md)
+- [Capyap CLI](CAPYAP_CLI.md)

@@ -33,7 +33,7 @@ Relevant files:
 ### Persistence Layer
 
 - Settings persistence contains non-secret config only.
-- Legacy key fields are stripped if found from old versions.
+- Old key fields from previous releases are stripped if found.
 - Transcript cache contains transcript metadata/chunks only.
 
 Relevant file:
@@ -51,6 +51,6 @@ Relevant file:
 - API keys/tokens.
 - Request-scoped session auth secrets.
 
-## Legacy CLI Note
+## CLI Compatibility Note
 
-Legacy CLI commands (`yt-extract-summarize`, `yt-transcript-chat`) may read API keys from environment variables at runtime; they do not persist keys to disk.
+CLI commands (`yt-extract-summarize`, `yt-transcript-chat`) may read API keys from environment variables at runtime; they do not persist keys to disk.

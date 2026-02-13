@@ -66,10 +66,10 @@ export const TranscriptViewer: React.FC<TranscriptViewerProps> = ({
                 event.stopPropagation();
                 onOpenVideoAt(seg.start);
               }}
-              title="Open video at this timestamp"
+              title="View video at this timestamp"
               className="shrink-0 text-[10px] font-semibold text-primary-300 border border-primary-800/70 bg-primary-950/40 px-2 py-1 rounded hover:bg-primary-900/60 hover:text-primary-200 transition-colors"
             >
-              Open
+              View
             </button>
           )}
         </div>

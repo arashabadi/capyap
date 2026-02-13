@@ -1,5 +1,7 @@
 # Capyap
 
+![Capyap Demo](docs/assets/capyap-demo.gif)
+
 Local-first YouTube transcript assistant with citation-grounded answers.
 
 Capyap gives non-coder users a simple local workflow:
@@ -8,7 +10,7 @@ Capyap gives non-coder users a simple local workflow:
 - get answers with timestamp evidence
 - click timestamps to open YouTube at the exact moment
 - use Chapters side panel (native chapters or AI-generated chapters)
-- export a readable `HTML (.html)` transcript with clickable timestamps
+- export transcript data in lightweight formats
 
 Privacy rule:
 - Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
@@ -47,6 +49,17 @@ Useful flags:
 - `capyap start --port 8080`
 - `capyap start --host 0.0.0.0`
 
+## Desktop Downloads
+
+- Latest installers (macOS, Windows, Linux): [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
+
+## Export Options
+
+- `Clean Text (.txt)`: plain transcript text
+- `With Timestamps (.txt)`: transcript with `[mm:ss]` markers
+- `Raw JSON (.json)`: structured transcript, metadata, and chapters
+- `HTML (.html)`: readable export with chapter sidebar, chapter `View` links, segment `View` buttons, and timestamp anchors
+
 ## Project Structure
 
 - `apps/backend/`: FastAPI + LangGraph agent backend
@@ -62,18 +75,20 @@ Useful flags:
 - `docs/DEVELOPMENT_GUIDE.md`
 - `docs/SECURITY_AND_PRIVACY.md`
 - `docs/RELEASE_CHECKLIST.md`
-- `docs/LEGACY_CLI.md`
+- `docs/CAPYAP_CLI.md`
 
 ## Developer Mode (Optional)
 
 For separate backend/frontend/desktop development flow, see:
 - `apps/README.md`
 
-## Legacy CLI Tools (Optional)
+## Capyap CLI Tools (Optional)
 
-Capyap still exposes the original transcript CLI commands:
+Capyap includes script-friendly CLI commands:
 - `yt-extract-summarize`
 - `yt-transcript-chat`
+
+See `docs/CAPYAP_CLI.md`.
 
 ## Troubleshooting
 

@@ -6,7 +6,7 @@ Use this checklist before creating the first public tag.
 
 - [ ] `README.md` quickstart is accurate and minimal.
 - [ ] Timestamp click opens YouTube at exact moment from transcript and citations.
-- [ ] `HTML (.html)` export opens on iPad with clickable timestamps.
+- [ ] `HTML (.html)` export includes chapters, timestamp anchors, and `View` links/buttons.
 - [ ] API key privacy rule is visible in UI and docs.
 
 ## Security
