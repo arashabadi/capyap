@@ -75,6 +75,22 @@ const JSON_HEADERS = {
   "Content-Type": "application/json",
 };
 
+function resolveApiBase(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const protocol = window.location.protocol;
+  // Tauri packaged apps run under a non-http protocol. Local backend stays on localhost.
+  if (protocol === "tauri:" || protocol === "asset:" || protocol === "file:") {
+    return "http://127.0.0.1:8000";
+  }
+
+  return "";
+}
+
+const API_BASE = resolveApiBase();
+
 let currentSourceContext: {
   source?: string;
   transcriptId?: string;
@@ -82,13 +98,24 @@ let currentSourceContext: {
 } = {};
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(path, options);
+  const url = `${API_BASE}${path}`;
+  const response = await fetch(url, options);
   const isJson = response.headers.get("content-type")?.includes("application/json");
   const payload = isJson ? await response.json() : null;
+  const fallbackText = !isJson ? await response.text() : "";
 
   if (!response.ok) {
-    const detail = payload?.detail || `${response.status} ${response.statusText}`;
+    const detail =
+      payload?.detail ||
+      fallbackText ||
+      `${response.status} ${response.statusText}`;
     throw new Error(detail);
+  }
+
+  if (!isJson || payload == null) {
+    throw new Error(
+      "Could not reach Capyap backend. If you are using the desktop app, start the local backend first with `capyap start`."
+    );
   }
 
   return payload as T;
@@ -148,6 +175,10 @@ export const api = {
       headers: JSON_HEADERS,
       body: JSON.stringify({ source: urlOrPath }),
     });
+
+    if (!response?.transcript) {
+      throw new Error("Transcript response was invalid. Please try again.");
+    }
 
     currentSourceContext = {
       source: urlOrPath,
