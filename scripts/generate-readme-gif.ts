@@ -6,7 +6,7 @@ import { join } from 'node:path';
 const WIDTH = 480;
 const HEIGHT = 270;
 const FPS = 12;
-const FRAMES = 60;
+const FRAMES = 120;
 const OUTPUT = join(process.cwd(), 'docs/assets/capyap-demo.gif');
 
 type RGB = [number, number, number];
@@ -144,34 +144,37 @@ const renderFrame = (frame: number): Canvas => {
   const img = new Uint8Array(WIDTH * HEIGHT * 3);
   blendBg(img, t);
 
-  const inputPhase = smoothstep(0.02, 0.22, t);
-  const inputFade = 1 - smoothstep(0.24, 0.34, t);
-  const workspaceReveal = smoothstep(0.26, 0.44, t);
-  const keyModalReveal = smoothstep(0.50, 0.62, t) * (1 - smoothstep(0.74, 0.82, t));
-  const agentReveal = smoothstep(0.70, 0.90, t);
-
-  // Intro: paste YouTube link scene.
-  if (inputFade > 0.01) {
-    const cardY = 76 - Math.round((1 - inputFade) * 18);
-    const pulse = 1 + (Math.sin(t * Math.PI * 8) * 0.02);
+  // Scene 1: intro page. Keep this visible long enough before any UI transition.
+  if (t < 0.42) {
+    const introProgress = smoothstep(0.02, 0.36, t);
+    const pulse = 1 + (Math.sin(t * Math.PI * 6) * 0.015);
     const cardW = Math.round(350 * pulse);
+    const cardH = 124;
     const cardX = Math.round((WIDTH - cardW) / 2);
+    const cardY = 72;
 
-    fillRect(img, cardX, cardY, cardW, 116, COLORS.panel);
-    strokeRect(img, cardX, cardY, cardW, 116, COLORS.accentStrong);
+    fillRect(img, cardX, cardY, cardW, cardH, COLORS.panel);
+    strokeRect(img, cardX, cardY, cardW, cardH, COLORS.accentStrong);
     drawText(img, 'PASTE YOUTUBE LINK', cardX + 16, cardY + 12, 1, COLORS.text);
 
     fillRect(img, cardX + 14, cardY + 34, cardW - 28, 30, [9, 13, 25]);
     strokeRect(img, cardX + 14, cardY + 34, cardW - 28, 30, COLORS.stroke);
 
-    const typed = 'YOUTUBE VIDEO LINK';
-    const typedCount = Math.max(1, Math.floor(typed.length * inputPhase));
-    drawText(img, typed.slice(0, typedCount), cardX + 24, cardY + 45, 1, COLORS.accent);
+    const typed = 'HTTPS YOUTUBE COM WATCH';
+    const typedCount = Math.max(1, Math.floor(typed.length * introProgress));
+    drawText(img, typed.slice(0, typedCount), cardX + 22, cardY + 45, 1, COLORS.accent);
 
-    fillRect(img, cardX + cardW - 110, cardY + 76, 96, 24, [16, 47, 36]);
-    strokeRect(img, cardX + cardW - 110, cardY + 76, 96, 24, COLORS.accent);
-    drawText(img, inputPhase > 0.78 ? 'TADAA' : 'LOAD', cardX + cardW - 84, cardY + 84, 1, COLORS.text);
+    fillRect(img, cardX + cardW - 110, cardY + 80, 96, 24, [16, 47, 36]);
+    strokeRect(img, cardX + cardW - 110, cardY + 80, 96, 24, COLORS.accent);
+    drawText(img, 'LOAD', cardX + cardW - 76, cardY + 88, 1, COLORS.text);
+
+    drawText(img, 'LOCAL  PRIVATE', cardX + 18, cardY + 88, 1, COLORS.warning);
+    return img;
   }
+
+  const workspaceReveal = smoothstep(0.42, 0.64, t);
+  const keyModalReveal = smoothstep(0.70, 0.82, t) * (1 - smoothstep(0.95, 0.995, t));
+  const agentReveal = smoothstep(0.84, 0.985, t);
 
   // Outer app chrome
   fillRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, COLORS.panel);
@@ -208,26 +211,64 @@ const renderFrame = (frame: number): Canvas => {
   const mainH = 188;
   fillRect(img, mainX, mainY, mainW, mainH, [8, 13, 24]);
   strokeRect(img, mainX, mainY, mainW, mainH, COLORS.stroke);
-  if (workspaceReveal > 0.45) {
-    drawText(img, 'SESSION KEY NEVER SAVED', 194, 60, 1, COLORS.warning);
-  }
 
-  // Transcript lines + animated citation pulse
+  // Two clear transcript chunks (Docker tutorial style)
+  const chunkRows = [
+    {
+      title: 'CHUNK 1  DOCKER TUTORIAL',
+      lineA: 'BUILD IMAGE  RUN CONTAINER',
+      lineB: 'TEST WEB APP ON LOCALHOST',
+    },
+    {
+      title: 'CHUNK 2  COMPOSE AND CI CD',
+      lineA: 'ADD API  CLIENT  DATABASE',
+      lineB: 'GITHUB ACTION DEPLOY FLOW',
+    },
+  ];
+  const activeChunk = Math.floor((t * 4) % chunkRows.length);
   const pulse = Math.abs(Math.sin(t * Math.PI * 4));
-  const transcriptW = Math.round(220 * (0.76 - (0.32 * agentReveal)));
-  for (let i = 0; i < 7; i += 1) {
+  const transcriptW = Math.round(240 * (0.86 - (0.30 * agentReveal)));
+
+  for (let i = 0; i < chunkRows.length; i += 1) {
     if (workspaceReveal <= 0.35) continue;
-    const y = 80 + (i * 18);
-    const w = Math.max(56, transcriptW - ((i % 3) * 18));
-    fillRect(img, 194, y, w, 8, [34, 48, 79]);
-    if (i === 2 || i === 5) {
-      const glow: RGB = [
-        Math.round(lerp(50, 78, pulse)),
-        Math.round(lerp(170, 223, pulse)),
-        Math.round(lerp(150, 212, pulse)),
-      ];
-      fillRect(img, 194 + w + 6, y, 12, 8, glow);
-    }
+    const y = 84 + (i * 56);
+    const w = Math.max(150, transcriptW - ((i % 2) * 10));
+    const isActive = i === activeChunk;
+    fillRect(img, 194, y, w, 44, isActive ? [24, 56, 88] : [24, 34, 57]);
+    strokeRect(img, 194, y, w, 44, isActive ? COLORS.accentStrong : COLORS.stroke);
+
+    const maxChars = Math.max(10, Math.floor((w - 12) / 6));
+    drawText(
+      img,
+      chunkRows[i].title.slice(0, maxChars),
+      198,
+      y + 4,
+      1,
+      isActive ? COLORS.text : COLORS.muted,
+    );
+    drawText(
+      img,
+      chunkRows[i].lineA.slice(0, maxChars),
+      198,
+      y + 16,
+      1,
+      isActive ? COLORS.text : COLORS.muted,
+    );
+    drawText(
+      img,
+      chunkRows[i].lineB.slice(0, maxChars),
+      198,
+      y + 28,
+      1,
+      isActive ? COLORS.text : COLORS.muted,
+    );
+
+    const glow: RGB = [
+      Math.round(lerp(50, 78, pulse)),
+      Math.round(lerp(170, 223, pulse)),
+      Math.round(lerp(150, 212, pulse)),
+    ];
+    fillRect(img, 194 + w + 4, y + 18, 6, 6, isActive ? glow : [40, 54, 86]);
   }
 
   // Footer actions
@@ -241,15 +282,8 @@ const renderFrame = (frame: number): Canvas => {
     drawText(img, 'HTML EXPORT', 328, 219, 1, COLORS.text);
   }
 
-  // Scene cue: panels opened after link paste.
-  if (t > 0.36 && t < 0.52) {
-    const nudge = Math.round(Math.sin(t * Math.PI * 18) * 2);
-    drawText(img, 'TADAA', 205 + nudge, 72, 2, COLORS.accent);
-  }
-
   // Secure API key modal scene.
   if (keyModalReveal > 0.02) {
-    fillRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, [6, 9, 16]);
     const modalW = 258;
     const modalH = 102;
     const modalX = Math.round((WIDTH - modalW) / 2);
@@ -267,9 +301,11 @@ const renderFrame = (frame: number): Canvas => {
     const chars = Math.max(1, Math.floor(hidden.length * keyProgress));
     drawText(img, hidden.slice(0, chars), modalX + 26, modalY + 44, 1, COLORS.accent);
 
-    fillRect(img, modalX + modalW - 106, modalY + 70, 90, 20, [16, 47, 36]);
-    strokeRect(img, modalX + modalW - 106, modalY + 70, 90, 20, COLORS.accent);
-    drawText(img, keyProgress > 0.72 ? 'TADAA' : 'START', modalX + modalW - 82, modalY + 77, 1, COLORS.text);
+    drawText(img, 'KEY NEVER SAVED TO DISK', modalX + 18, modalY + 67, 1, COLORS.warning);
+
+    fillRect(img, modalX + modalW - 106, modalY + 74, 90, 20, [16, 47, 36]);
+    strokeRect(img, modalX + modalW - 106, modalY + 74, 90, 20, COLORS.accent);
+    drawText(img, keyProgress > 0.72 ? 'CONNECT' : 'START', modalX + modalW - 90, modalY + 81, 1, COLORS.text);
   }
 
   // Agent panel appears scene.
@@ -285,9 +321,7 @@ const renderFrame = (frame: number): Canvas => {
       fillRect(img, panelX + 18, mainY + 56, panelW - 28, 18, [16, 47, 36]);
       fillRect(img, panelX + 10, mainY + 82, panelW - 20, 18, [21, 34, 59]);
       drawText(img, 'READY', panelX + 20, mainY + 106, 1, COLORS.text);
-      if (agentReveal > 0.72) {
-        drawText(img, 'TADAA', panelX + 16, mainY + 128, 1, COLORS.accent);
-      }
+      drawText(img, 'ASK', panelX + 24, mainY + 128, 1, COLORS.accent);
     }
   }
 
