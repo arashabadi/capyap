@@ -23,9 +23,9 @@ export const downloadTranscript = (
       extension = 'json';
       break;
     case 'txt-timestamps':
-      content = source.segments
+      content = `${buildTextExportHeader(source)}${source.segments
         .map(s => `[${formatTime(s.start)}] ${s.text}`)
-        .join('\n');
+        .join('\n')}`;
       break;
     case 'html':
       content = buildHtmlExport(source);
@@ -34,13 +34,18 @@ export const downloadTranscript = (
       break;
     case 'txt':
     default:
-      content = source.segments
+      content = `${buildTextExportHeader(source)}${source.segments
         .map(s => s.text)
-        .join('\n');
+        .join('\n')}`;
       break;
   }
 
   downloadBlob(content, mimeType, buildExportFilename(source, extension));
+};
+
+const buildTextExportHeader = (source: SourceMetadata): string => {
+  const sourceLine = source.url ? `Source: ${source.url}\n` : '';
+  return `${source.title}\n${sourceLine}\n`;
 };
 
 const downloadPdf = async (source: SourceMetadata): Promise<void> => {

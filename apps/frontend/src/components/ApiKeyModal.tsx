@@ -13,6 +13,26 @@ interface ApiKeyModalProps {
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState<SessionConfig['provider']>('gemini');
+  const providerKeyMeta: Record<SessionConfig['provider'], { placeholder: string; hint: string }> = {
+    gemini: {
+      placeholder: 'AIza...',
+      hint: 'Gemini API keys usually start with AIza.',
+    },
+    openai: {
+      placeholder: 'sk-proj-... (or sk-...)',
+      hint: 'OpenAI API keys start with sk-.',
+    },
+    anthropic: {
+      placeholder: 'sk-ant-...',
+      hint: 'Anthropic API keys start with sk-ant-.',
+    },
+    ollama: {
+      placeholder: 'No key required for local Ollama',
+      hint: 'Local Ollama can run without an external API key.',
+    },
+  };
+  const requiresApiKey = provider !== 'ollama';
+  const keyMeta = providerKeyMeta[provider];
 
   if (!isOpen) return null;
 
@@ -65,11 +85,12 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
              <Input
                label={`${provider} API Key`}
                type="password"
-               placeholder="sk-..."
+               placeholder={keyMeta.placeholder}
                value={apiKey}
                onChange={(e) => setApiKey(e.target.value)}
                autoFocus
              />
+             <p className="text-xs text-neutral-500 -mt-1">{keyMeta.hint}</p>
           </div>
         </div>
 
@@ -77,8 +98,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
         <div className="px-6 py-4 bg-neutral-950/50 border-t border-neutral-800 flex justify-end gap-3">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button 
-            disabled={!apiKey} 
-            onClick={() => onSubmit({ apiKey, provider, model: 'default' })}
+            disabled={requiresApiKey ? !apiKey.trim() : false}
+            onClick={() =>
+              onSubmit({
+                apiKey: provider === 'ollama' ? apiKey.trim() || 'ollama-local' : apiKey.trim(),
+                provider,
+                model: 'default',
+              })
+            }
           >
             Start Analyzing
           </Button>

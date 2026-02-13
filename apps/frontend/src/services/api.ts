@@ -81,9 +81,16 @@ function resolveApiBase(): string {
     return "";
   }
 
-  const protocol = window.location.protocol;
-  // Tauri packaged apps run under a non-http protocol. Local backend stays on localhost.
-  if (protocol === "tauri:" || protocol === "asset:" || protocol === "file:") {
+  const { protocol, hostname, port } = window.location;
+  const desktopProtocol = protocol !== "http:" && protocol !== "https:";
+  const tauriHost =
+    hostname === "tauri.localhost" ||
+    hostname.endsWith(".tauri.localhost") ||
+    (hostname.includes("tauri") && hostname.endsWith(".localhost"));
+  const localhostWithoutPort = hostname === "localhost" && !port;
+
+  // Desktop bundles use custom protocols/hosts while backend remains on localhost:8000.
+  if (desktopProtocol || tauriHost || localhostWithoutPort) {
     return "http://127.0.0.1:8000";
   }
 
@@ -160,6 +167,34 @@ function sourceTypeFromLabel(sourceLabel: string): "youtube" | "file" {
   return sourceLabel.startsWith("youtube:") ? "youtube" : "file";
 }
 
+async function fetchYouTubeTitleFallback(
+  sourceUrl?: string | null,
+  sourceLabel?: string,
+): Promise<string | null> {
+  let videoUrl = sourceUrl?.trim() || "";
+  if (!videoUrl && sourceLabel?.startsWith("youtube:")) {
+    const videoId = sourceLabel.replace("youtube:", "").trim();
+    if (videoId) {
+      videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    }
+  }
+  if (!videoUrl) return null;
+
+  try {
+    const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&format=json`;
+    const response = await fetch(endpoint);
+    if (!response.ok) return null;
+    const payload = await response.json();
+    const title = payload?.title;
+    if (typeof title === "string" && title.trim()) {
+      return title.trim();
+    }
+  } catch {
+    // Keep silent and use local fallback title logic.
+  }
+  return null;
+}
+
 function titleFromSource(
   source: string,
   sourceLabel: string,
@@ -194,13 +229,19 @@ export const api = {
       transcriptId: response.transcript.transcript_id,
       sourceUrl: response.transcript.source_url || undefined,
     };
+    const fetchedTitle =
+      response.transcript.source_title ||
+      (await fetchYouTubeTitleFallback(
+        response.transcript.source_url,
+        response.transcript.source_label,
+      ));
 
     return {
       id: response.transcript.transcript_id,
       title: titleFromSource(
         urlOrPath,
         response.transcript.source_label,
-        response.transcript.source_title,
+        fetchedTitle,
       ),
       sourceType: sourceTypeFromLabel(response.transcript.source_label),
       chunkCount: response.transcript.chunk_count,
@@ -218,7 +259,7 @@ export const api = {
     provider: Provider,
     history: Array<{ role: "user" | "assistant"; content: string }>
   ): Promise<AnswerResponse> => {
-    if (!apiKey) {
+    if (!apiKey && provider !== "ollama") {
       throw new Error("API Key is required");
     }
 
