@@ -18,6 +18,16 @@ def chat_with_agent(payload: AgentChatRequest) -> AgentChatResponse:
     transcript_service = get_transcript_service()
     settings = store.load_settings()
 
+    session_api_token = (payload.api_token or "").strip()
+    if not session_api_token:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Missing session API token. Your API key is used directly for this session "
+                "and is never stored on disk. Capyap runs locally on your machine."
+            ),
+        )
+
     transcript: dict | None = None
 
     if payload.transcript_id:
@@ -36,13 +46,21 @@ def chat_with_agent(payload: AgentChatRequest) -> AgentChatResponse:
             detail="Provide source or transcript_id so the agent can load transcript context.",
         )
 
+    runtime_settings = settings.model_copy(
+        update={
+            "model": (payload.model or settings.model).strip(),
+            "base_url": (payload.base_url or settings.base_url).strip(),
+        }
+    )
+
     try:
         output = run_agent(
             {
                 "question": payload.question,
+                "session_api_token": session_api_token,
                 "history": [turn.model_dump() for turn in payload.history],
                 "history_turns": payload.history_turns,
-                "settings": settings,
+                "settings": runtime_settings,
                 "chunks": transcript["chunks"],
                 "top_k": payload.top_k or settings.top_k,
             }

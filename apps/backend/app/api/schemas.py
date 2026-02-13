@@ -11,11 +11,6 @@ class LLMSettings(BaseModel):
     provider_name: str = Field(default="OpenAI-compatible")
     base_url: str = Field(default="https://api.openai.com/v1")
     model: str = Field(default="gpt-4o-mini")
-    token_env: str = Field(default="LLM_API_TOKEN")
-    api_token: str | None = Field(
-        default=None,
-        description="Optional token stored locally for desktop-only convenience.",
-    )
     temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     timeout: float = Field(default=90.0, ge=5.0, le=300.0)
     top_k: int = Field(default=6, ge=1, le=20)
@@ -27,14 +22,13 @@ class SettingsResponse(BaseModel):
     """Response payload for onboarding and settings UI."""
 
     settings: LLMSettings
-    has_token: bool
+    is_configured: bool
 
 
 class SaveSettingsRequest(BaseModel):
     """Request payload for saving onboarding settings."""
 
     settings: LLMSettings
-    store_token: bool = False
 
 
 class TranscriptLoadRequest(BaseModel):
@@ -43,6 +37,17 @@ class TranscriptLoadRequest(BaseModel):
     source: str
     languages: str | None = None
     chunk_words: int | None = Field(default=None, ge=80, le=600)
+
+
+class TranscriptChunk(BaseModel):
+    """Transcript chunk row for frontend rendering with timeline labels."""
+
+    chunk_id: int
+    text: str
+    start_seconds: float
+    end_seconds: float
+    start_label: str
+    end_label: str
 
 
 class TranscriptMeta(BaseModel):
@@ -59,6 +64,7 @@ class TranscriptLoadResponse(BaseModel):
     """Response payload after loading or refreshing transcript."""
 
     transcript: TranscriptMeta
+    chunks: list[TranscriptChunk] = Field(default_factory=list)
 
 
 class ChatTurn(BaseModel):
@@ -72,6 +78,13 @@ class AgentChatRequest(BaseModel):
     """Request payload for the LangGraph agent."""
 
     question: str = Field(min_length=1)
+    api_token: str | None = Field(
+        default=None,
+        description="Session-only API token. Never persisted on disk by the backend.",
+    )
+    provider: str | None = None
+    model: str | None = None
+    base_url: str | None = None
     source: str | None = None
     transcript_id: str | None = None
     top_k: int | None = Field(default=None, ge=1, le=20)

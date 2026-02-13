@@ -56,7 +56,11 @@ def call_model_node(state: AgentState) -> dict:
 
     messages.append({"role": "user", "content": state["prompt"]})
 
-    answer = chat_completion(settings=state["settings"], messages=messages)
+    answer = chat_completion(
+        settings=state["settings"],
+        api_token=state["session_api_token"],
+        messages=messages,
+    )
     return {"answer": answer}
 
 

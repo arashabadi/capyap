@@ -11,6 +11,7 @@ class AgentState(TypedDict):
     """Shared graph state across retrieval and answering nodes."""
 
     question: str
+    session_api_token: str
     history: list[dict[str, str]]
     history_turns: int
     settings: LLMSettings

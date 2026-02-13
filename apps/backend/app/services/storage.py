@@ -25,17 +25,21 @@ class LocalStore:
             return LLMSettings()
 
         payload = self._read_json(self._settings_file)
+        migrated = self._strip_legacy_token_fields(payload)
+        if migrated != payload:
+            self._write_json(self._settings_file, migrated)
         try:
-            return LLMSettings.model_validate(payload)
+            return LLMSettings.model_validate(migrated)
         except Exception:
             return LLMSettings()
 
-    def save_settings(self, settings: LLMSettings, store_token: bool) -> LLMSettings:
-        """Persist settings with optional local token storage."""
-        persistable = settings.model_dump()
-        if not store_token:
-            persistable["api_token"] = None
+    def has_settings(self) -> bool:
+        """Return whether settings were already persisted locally."""
+        return self._settings_file.exists()
 
+    def save_settings(self, settings: LLMSettings) -> LLMSettings:
+        """Persist non-secret settings only."""
+        persistable = settings.model_dump()
         self._write_json(self._settings_file, persistable)
         return LLMSettings.model_validate(persistable)
 
@@ -69,3 +73,14 @@ class LocalStore:
     def _write_json(path: Path, payload: dict[str, Any]) -> None:
         with path.open("w", encoding="utf-8") as fh:
             json.dump(payload, fh, indent=2, ensure_ascii=True)
+
+    @staticmethod
+    def _strip_legacy_token_fields(payload: dict[str, Any]) -> dict[str, Any]:
+        """Remove old persisted secret fields from previous builds."""
+        if not isinstance(payload, dict):
+            return {}
+        cleaned = dict(payload)
+        cleaned.pop("api_token", None)
+        cleaned.pop("token_env", None)
+        cleaned.pop("store_token", None)
+        return cleaned

@@ -3,6 +3,6 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "build": "npm --prefix apps/frontend install --no-package-lock && npm --prefix apps/frontend run build"
+    "build": "./scripts/build-frontend.sh"
   }
 }

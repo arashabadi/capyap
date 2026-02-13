@@ -20,6 +20,9 @@ capyap start
 
 `capyap start` opens the local web app automatically in your browser.
 
+Privacy rule:
+- Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
+
 ## 1) Create advanced dev environment
 
 ```bash
@@ -60,7 +63,7 @@ Then run:
 ## First-run onboarding
 
 1. Launch app
-2. Enter provider base URL/model/token
-3. Save settings
-4. Paste YouTube link and ask questions
+2. Paste a YouTube link or transcript file
+3. Enter provider + API key in the modal session prompt
+4. Ask questions with timestamp-cited answers
 5. Use `Talk to Agent` popup for conversational follow-ups

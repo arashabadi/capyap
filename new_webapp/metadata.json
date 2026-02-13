@@ -1,0 +1,5 @@
+{
+  "name": "Capyap Local Agent",
+  "description": "Turn any YouTube video into a citation-grounded Q/A workspace with timestamp evidence.",
+  "requestFramePermissions": []
+}

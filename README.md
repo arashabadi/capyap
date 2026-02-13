@@ -7,6 +7,9 @@ Capyap gives non-coder users a simple desktop/web workflow:
 - ask questions
 - get answers with timestamp evidence
 
+Privacy rule:
+- Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
+
 ## Quickstart (Recommended)
 
 ```bash
@@ -19,18 +22,15 @@ capyap start
 ```
 
 What happens:
-- `npm run build` installs frontend deps and builds static assets once
+- `npm run build` installs frontend deps only if needed, then builds static assets
 - `capyap start` launches local backend + UI and opens your browser automatically
 
 ## First Run in the App
 
-1. Enter your LLM provider settings in onboarding:
-- base URL
-- model
-- token (or env var name)
-2. Paste a YouTube URL or local transcript `.txt` path.
-3. Ask questions and review timestamp citations.
-4. Use `Talk to Agent` for multi-turn follow-up chat.
+1. Paste a YouTube URL or local transcript `.txt` path.
+2. Click `Start AI Analysis`.
+3. Choose provider and paste your API key for this session.
+4. Ask questions and review timestamp citations.
 
 ## Daily Usage
 

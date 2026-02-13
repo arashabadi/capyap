@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import requests
@@ -18,35 +17,28 @@ SYSTEM_PROMPT = (
 )
 
 
-def resolve_api_token(settings: LLMSettings) -> str:
-    """Resolve API token from saved settings or environment variables."""
-    if settings.api_token:
-        return settings.api_token
-
-    from_env = os.getenv(settings.token_env)
-    if from_env:
-        return from_env
-
-    fallback = os.getenv("OPENAI_API_KEY")
-    if fallback:
-        return fallback
-
+def resolve_api_token(api_token: str | None) -> str:
+    """Resolve session-only API token."""
+    token = (api_token or "").strip()
+    if token:
+        return token
     raise RuntimeError(
-        "No API token configured. Save token in onboarding, "
-        f"or set {settings.token_env} / OPENAI_API_KEY."
+        "Missing API token for this session. "
+        "Provide your key in the UI session field and try again."
     )
 
 
 def chat_completion(
     *,
     settings: LLMSettings,
+    api_token: str | None,
     messages: list[dict[str, str]],
 ) -> str:
     """Call OpenAI-compatible /chat/completions endpoint and return text output."""
     base = settings.base_url.rstrip("/")
     endpoint = base if base.endswith("/chat/completions") else f"{base}/chat/completions"
 
-    token = resolve_api_token(settings)
+    token = resolve_api_token(api_token)
     payload: dict[str, Any] = {
         "model": settings.model,
         "messages": messages,
