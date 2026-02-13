@@ -170,6 +170,21 @@ export const CheckCircle2: React.FC<IconProps> = (props) => (
   </Svg>
 );
 
+export const AlertTriangle: React.FC<IconProps> = (props) => (
+  <Svg {...props}>
+    <path d="m10.29 3.86-7.5 13A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.71-3.14l-7.5-13a2 2 0 0 0-3.42 0Z" />
+    <path d="M12 9v4" />
+    <path d="M12 17h.01" />
+  </Svg>
+);
+
+export const RefreshCcw: React.FC<IconProps> = (props) => (
+  <Svg {...props}>
+    <path d="M3 2v6h6" />
+    <path d="M3 8a9 9 0 1 0 3-6.7L3 4" />
+  </Svg>
+);
+
 export const File: React.FC<IconProps> = (props) => (
   <Svg {...props}>
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />

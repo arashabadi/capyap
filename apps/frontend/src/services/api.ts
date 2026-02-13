@@ -112,6 +112,15 @@ function resolveApiBase(): string {
 
 const API_BASE = resolveApiBase();
 
+function backendUnavailableMessage(): string {
+  const target = API_BASE || "this app backend";
+  return (
+    `Could not connect to Capyap backend at ${target}. ` +
+    "For desktop app usage, run `conda activate capyap` (or `capyap_dev`) then `capyap start --no-browser`, " +
+    "keep it running, and try again."
+  );
+}
+
 let currentSourceContext: {
   source?: string;
   transcriptId?: string;
@@ -120,7 +129,12 @@ let currentSourceContext: {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${path}`;
-  const response = await fetch(url, options);
+  let response: Response;
+  try {
+    response = await fetch(url, options);
+  } catch {
+    throw new Error(backendUnavailableMessage());
+  }
   const isJson = response.headers.get("content-type")?.includes("application/json");
   const payload = isJson ? await response.json() : null;
   const fallbackText = !isJson ? await response.text() : "";
@@ -134,9 +148,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (!isJson || payload == null) {
-    throw new Error(
-      "Could not reach Capyap backend. If you are using the desktop app, start the local backend first with `capyap start`."
-    );
+    throw new Error(backendUnavailableMessage());
   }
 
   return payload as T;
@@ -226,11 +238,22 @@ function titleFromSource(
 }
 
 export const api = {
-  loadTranscript: async (urlOrPath: string): Promise<SourceMetadata> => {
+  loadTranscript: async (urlOrPath: string, file?: File): Promise<SourceMetadata> => {
+    let body: Record<string, string>;
+    if (file) {
+      const text = await file.text();
+      body = {
+        source: `upload:${file.name || "transcript.txt"}`,
+        transcript_text: text,
+      };
+    } else {
+      body = { source: urlOrPath };
+    }
+
     const response = await request<TranscriptLoadApiResponse>("/api/transcripts/load", {
       method: "POST",
       headers: JSON_HEADERS,
-      body: JSON.stringify({ source: urlOrPath }),
+      body: JSON.stringify(body),
     });
 
     if (!response?.transcript) {

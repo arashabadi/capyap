@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from .schemas import (
     TranscriptChapter,
@@ -20,12 +20,25 @@ router = APIRouter(prefix="/api/transcripts", tags=["transcripts"])
 def load_transcript(payload: TranscriptLoadRequest) -> TranscriptLoadResponse:
     """Load transcript from source and return cache metadata."""
     settings = get_store().load_settings()
+    service = get_transcript_service()
 
-    transcript = get_transcript_service().load_or_create(
-        source=payload.source,
-        languages=payload.languages or settings.languages,
-        chunk_words=payload.chunk_words or settings.chunk_words,
-    )
+    try:
+        if payload.transcript_text is not None:
+            transcript = service.load_from_text(
+                source_label=payload.source,
+                transcript_text=payload.transcript_text,
+                chunk_words=payload.chunk_words or settings.chunk_words,
+            )
+        else:
+            transcript = service.load_or_create(
+                source=payload.source,
+                languages=payload.languages or settings.languages,
+                chunk_words=payload.chunk_words or settings.chunk_words,
+            )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     meta = TranscriptMeta(
         transcript_id=transcript["transcript_id"],

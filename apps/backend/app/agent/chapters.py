@@ -53,14 +53,17 @@ def generate_chapters_from_chunks(
         f"{context}"
     )
 
-    raw = chat_completion(
-        settings=settings,
-        api_token=api_token,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-    )
+    try:
+        raw = chat_completion(
+            settings=settings,
+            api_token=api_token,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+        )
+    except Exception:
+        return _fallback_chapters(chunks, transcript_end, capped_max)
     candidates = _parse_candidates(raw)
     chapters = _finalize_candidates(candidates, transcript_end, capped_max)
     if chapters:

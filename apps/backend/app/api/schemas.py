@@ -48,6 +48,7 @@ class TranscriptLoadRequest(BaseModel):
     """Request payload for loading transcript data."""
 
     source: str
+    transcript_text: str | None = None
     languages: str | None = None
     chunk_words: int | None = Field(default=None, ge=80, le=600)
 

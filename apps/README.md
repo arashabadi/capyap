@@ -59,6 +59,13 @@ Then run:
 ./scripts/dev-desktop.sh
 ```
 
+If the desktop window shows load/connect errors, run backend first in another terminal:
+
+```bash
+conda activate capyap
+capyap start --no-browser
+```
+
 ## 4) One-command backend + desktop + localhost web
 
 ```bash

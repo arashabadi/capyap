@@ -11,6 +11,7 @@ interface SourceLoaderProps {
 
 export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) => {
   const [inputValue, setInputValue] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -29,6 +30,7 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
     const val = e.target.value;
     setInputValue(val);
     setDetectedType(detectType(val));
+    setSelectedFile(null);
     setError(null);
   };
 
@@ -37,8 +39,8 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
       const file = e.target.files[0];
       setInputValue(file.name);
       setDetectedType('file');
+      setSelectedFile(file);
       setError(null);
-      // In a real app, you would read the file content here
     }
   };
 
@@ -60,6 +62,7 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
       const file = e.dataTransfer.files[0];
       setInputValue(file.name);
       setDetectedType('file');
+      setSelectedFile(file);
       setError(null);
     }
   };
@@ -72,7 +75,7 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
     setError(null);
 
     try {
-      const source = await api.loadTranscript(inputValue);
+      const source = await api.loadTranscript(inputValue, selectedFile || undefined);
       onSourceLoaded(source);
     } catch (err: any) {
       setError(err.message || 'Failed to load source.');
@@ -176,14 +179,19 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
         </div>
 
         {/* Helper Text / Formats */}
-        <div className="mt-6 flex justify-center gap-6 text-xs text-neutral-500 font-medium">
-           <span className="flex items-center gap-1.5 hover:text-neutral-300 transition-colors cursor-help" title="Supports standard YouTube links">
-             <Youtube size={14} /> YouTube
-           </span>
-           <span className="flex items-center gap-1.5 hover:text-neutral-300 transition-colors cursor-help" title=".txt, .md, .srt, .vtt">
-             <FileText size={14} /> .txt .md .srt
-           </span>
-        </div>
+          <div className="mt-6 flex justify-center gap-6 text-xs text-neutral-500 font-medium">
+             <span className="flex items-center gap-1.5 hover:text-neutral-300 transition-colors cursor-help" title="Supports standard YouTube links">
+               <Youtube size={14} /> YouTube
+             </span>
+             <span className="flex items-center gap-1.5 hover:text-neutral-300 transition-colors cursor-help" title=".txt, .md, .srt, .vtt">
+               <FileText size={14} /> .txt .md .srt
+             </span>
+             {selectedFile && (
+               <span className="flex items-center gap-1.5 text-emerald-400">
+                 <CheckCircle2 size={14} /> {selectedFile.name}
+               </span>
+             )}
+          </div>
 
         {/* Error Message */}
         {error && (

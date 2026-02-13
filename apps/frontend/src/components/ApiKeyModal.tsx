@@ -113,10 +113,10 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
                    label={`${provider} API Key`}
                    type="password"
                    placeholder={keyMeta.placeholder}
-                 value={apiKey}
-                 onChange={(e) => setApiKey(e.target.value)}
-                 autoFocus
-                />
+                   value={apiKey}
+                   onChange={(e) => setApiKey(e.target.value)}
+                   autoFocus
+                 />
                  <p className="text-xs text-neutral-500 -mt-1">{keyMeta.hint}</p>
                </>
              ) : (

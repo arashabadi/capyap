@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -92,6 +93,49 @@ class TranscriptService:
         self._store.save_transcript(transcript_id, payload)
         return payload
 
+    def load_from_text(
+        self,
+        *,
+        source_label: str,
+        transcript_text: str,
+        chunk_words: int,
+    ) -> dict:
+        """Load transcript directly from raw text payload."""
+        clean_text = normalize_text(transcript_text or "")
+        if not clean_text.strip():
+            raise ValueError("Uploaded transcript text is empty.")
+
+        clean_label = (source_label or "upload:transcript.txt").strip()
+        if not clean_label:
+            clean_label = "upload:transcript.txt"
+
+        text_digest = hashlib.sha1(clean_text.encode("utf-8")).hexdigest()[:12]
+        transcript_source = f"inline:{clean_label}:{text_digest}"
+        transcript_id = self._store.build_transcript_id(transcript_source)
+
+        segments = self._segments_from_text(clean_text)
+        chunks = chunk_segments(segments, words_per_chunk=chunk_words)
+        word_count = sum(len(chunk["text"].split()) for chunk in chunks)
+
+        source_title = Path(clean_label.replace("upload:", "")).stem or "Uploaded Transcript"
+
+        payload = {
+            "transcript_id": transcript_id,
+            "source": transcript_source,
+            "source_label": clean_label,
+            "source_title": source_title,
+            "source_url": None,
+            "languages": "n/a",
+            "chunk_words": chunk_words,
+            "segments": segments,
+            "chunks": chunks,
+            "chapters": [],
+            "total_words": word_count,
+        }
+
+        self._store.save_transcript(transcript_id, payload)
+        return payload
+
     def load_by_id(self, transcript_id: str) -> dict | None:
         """Load cached transcript payload by id."""
         return self._store.load_transcript(transcript_id)
@@ -154,7 +198,11 @@ class TranscriptService:
     @staticmethod
     def _load_file_segments(path: Path) -> list[TranscriptSegment]:
         text = path.read_text(encoding="utf-8")
-        words = text.split()
+        return TranscriptService._segments_from_text(text)
+
+    @staticmethod
+    def _segments_from_text(text: str) -> list[TranscriptSegment]:
+        words = normalize_text(text).split()
 
         if not words:
             return []

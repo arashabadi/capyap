@@ -67,6 +67,9 @@ npm --prefix apps/desktop install --include=dev
 ## Desktop Downloads
 
 - Latest installers (macOS, Windows, Linux): [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
+- Current desktop shell expects a local backend on `127.0.0.1:8000`; start it first with:
+  - `conda activate capyap`
+  - `capyap start --no-browser`
 
 ## Publish Desktop Releases (No Local Build Needed)
 
