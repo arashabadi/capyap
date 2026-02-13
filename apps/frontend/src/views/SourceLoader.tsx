@@ -102,7 +102,6 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
               {APP_VERSION}
             </span>
           </div>
-          <p className="text-neutral-400 text-lg">Paste your YouTube link.</p>
         </div>
 
         {/* Main Card / Omnibox */}

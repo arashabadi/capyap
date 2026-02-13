@@ -1,15 +1,19 @@
 import { SourceMetadata } from '../types';
 import { buildYouTubeTimestampUrl, isYouTubeUrl } from './youtube';
 
-type ExportFormat = 'txt' | 'txt-timestamps' | 'json' | 'html' | 'pdf';
+export type ExportFormat = 'txt' | 'txt-timestamps' | 'json' | 'html' | 'pdf';
+
+export type ExportResult = {
+  filename: string;
+  locationHint: string;
+};
 
 export const downloadTranscript = (
   source: SourceMetadata,
   format: ExportFormat,
-) => {
+): Promise<ExportResult> => {
   if (format === 'pdf') {
-    void downloadPdf(source);
-    return;
+    return downloadPdf(source);
   }
 
   let content = '';
@@ -40,7 +44,12 @@ export const downloadTranscript = (
       break;
   }
 
-  downloadBlob(content, mimeType, buildExportFilename(source, extension));
+  const filename = buildExportFilename(source, extension);
+  downloadBlob(content, mimeType, filename);
+  return Promise.resolve({
+    filename,
+    locationHint: resolveDownloadLocationHint(),
+  });
 };
 
 const buildTextExportHeader = (source: SourceMetadata): string => {
@@ -48,7 +57,7 @@ const buildTextExportHeader = (source: SourceMetadata): string => {
   return `${source.title}\n${sourceLine}\n`;
 };
 
-const downloadPdf = async (source: SourceMetadata): Promise<void> => {
+const downloadPdf = async (source: SourceMetadata): Promise<ExportResult> => {
   try {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({
@@ -120,11 +129,37 @@ const downloadPdf = async (source: SourceMetadata): Promise<void> => {
       });
     }
 
-    doc.save(buildExportFilename(source, 'pdf'));
+    const filename = buildExportFilename(source, 'pdf');
+    doc.save(filename);
+    return {
+      filename,
+      locationHint: resolveDownloadLocationHint(),
+    };
   } catch (error) {
     console.error('PDF export failed', error);
     window.alert('PDF export failed. Please try HTML export.');
+    throw error;
   }
+};
+
+const resolveDownloadLocationHint = (): string => {
+  if (typeof window === 'undefined') {
+    return 'your downloads directory';
+  }
+
+  const { protocol, hostname, port } = window.location;
+  const desktopProtocol = protocol !== 'http:' && protocol !== 'https:';
+  const tauriHost =
+    hostname === 'tauri.localhost' ||
+    hostname.endsWith('.tauri.localhost') ||
+    (hostname.includes('tauri') && hostname.endsWith('.localhost'));
+  const localhostWithoutPort = hostname === 'localhost' && !port;
+
+  if (desktopProtocol || tauriHost || localhostWithoutPort) {
+    return 'your system Downloads folder';
+  }
+
+  return 'your browser download folder';
 };
 
 const buildExportFilename = (source: SourceMetadata, extension: string): string => {

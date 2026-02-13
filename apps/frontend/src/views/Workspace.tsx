@@ -6,7 +6,7 @@ import { CitationCard } from '../components/CitationCard';
 import { ApiKeyModal } from '../components/ApiKeyModal';
 import { SourceMetadata, SessionConfig, ChatMessage } from '../types';
 import { api } from '../services/api';
-import { downloadTranscript } from '../services/export';
+import { ExportFormat, downloadTranscript } from '../services/export';
 import { buildYouTubeTimestampUrl } from '../services/youtube';
 import { APP_VERSION } from '../version';
 
@@ -27,6 +27,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [exportNotice, setExportNotice] = useState<string | null>(null);
   const [chapters, setChapters] = useState(source.chapters || []);
   const [chaptersLoading, setChaptersLoading] = useState(false);
   const [chaptersError, setChaptersError] = useState<string | null>(null);
@@ -152,6 +153,33 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
     }
   };
 
+  const isDesktopRuntime = (): boolean => {
+    const { protocol, hostname, port } = window.location;
+    const desktopProtocol = protocol !== 'http:' && protocol !== 'https:';
+    const tauriHost =
+      hostname === 'tauri.localhost' ||
+      hostname.endsWith('.tauri.localhost') ||
+      (hostname.includes('tauri') && hostname.endsWith('.localhost'));
+    const localhostWithoutPort = hostname === 'localhost' && !port;
+    return desktopProtocol || tauriHost || localhostWithoutPort;
+  };
+
+  const handleExport = async (format: ExportFormat) => {
+    try {
+      const result = await downloadTranscript(source, format);
+      setShowExportMenu(false);
+      if (isDesktopRuntime()) {
+        const message = `Saved ${result.filename} to ${result.locationHint}.`;
+        setExportNotice(message);
+        window.setTimeout(() => {
+          setExportNotice((current) => (current === message ? null : current));
+        }, 3600);
+      }
+    } catch {
+      setShowExportMenu(false);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-neutral-950 overflow-hidden text-neutral-200">
       
@@ -201,23 +229,23 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
                       <div className="px-3 py-2 text-[10px] font-semibold text-neutral-500 uppercase tracking-wider bg-neutral-950/50 border-b border-neutral-800">
                         Download Format
                       </div>
-                      <button onClick={() => downloadTranscript(source, 'txt')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
+                      <button onClick={() => void handleExport('txt')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <FileText size={16} className="text-neutral-500" />
                         <span>Clean Text (.txt)</span>
                       </button>
-                      <button onClick={() => downloadTranscript(source, 'txt-timestamps')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
+                      <button onClick={() => void handleExport('txt-timestamps')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <Clock size={16} className="text-neutral-500" />
                         <span>With Timestamps (.txt)</span>
                       </button>
-                      <button onClick={() => downloadTranscript(source, 'json')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
+                      <button onClick={() => void handleExport('json')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <FileJson size={16} className="text-neutral-500" />
                         <span>Raw JSON (.json)</span>
                       </button>
-                      <button onClick={() => downloadTranscript(source, 'html')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
+                      <button onClick={() => void handleExport('html')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <FileText size={16} className="text-neutral-500" />
                         <span>HTML (.html)</span>
                       </button>
-                      <button onClick={() => downloadTranscript(source, 'pdf')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
+                      <button onClick={() => void handleExport('pdf')} className="w-full text-left px-4 py-3 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white flex items-center gap-3 transition-colors">
                         <FileText size={16} className="text-neutral-500" />
                         <span>PDF (.pdf)</span>
                       </button>
@@ -403,6 +431,12 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
                  <span>Local Session</span>
               </div>
            </div>
+        </div>
+      )}
+
+      {exportNotice && (
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg border border-emerald-700/50 bg-emerald-950/90 px-4 py-3 text-xs text-emerald-100 shadow-xl backdrop-blur">
+          {exportNotice}
         </div>
       )}
 
