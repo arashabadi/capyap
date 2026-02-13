@@ -28,7 +28,7 @@
 
 Desktop packaging flow:
 
-1. User launches `Capyap.app`.
+1. User launches `CapYap.app`.
 2. Tauri shell checks `http://127.0.0.1:8000/health`.
 3. If backend is not up, desktop tries to auto-start `capyap start --no-browser`.
 4. Frontend calls the same local API surface as web mode.

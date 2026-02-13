@@ -1,6 +1,6 @@
-# Ollama Setup (Local Capyap)
+# Ollama Setup (Local CapYap)
 
-Use this guide if you want Capyap agents to run on local Ollama models for free.
+Use this guide if you want CapYap agents to run on local Ollama models for free.
 
 ## 1) Install Ollama
 
@@ -17,7 +17,7 @@ ollama pull llama3.1
 
 You can pull other models too (for example `qwen2.5:7b`).
 
-## 3) Start Capyap locally
+## 3) Start CapYap locally
 
 From the repo root:
 
@@ -26,7 +26,7 @@ conda activate capyap
 capyap start
 ```
 
-Capyap runs locally and the backend serves the app on localhost.
+CapYap runs locally and the backend serves the app on localhost.
 
 Desktop app note:
 - Packaged desktop builds try to auto-start backend.
@@ -36,7 +36,7 @@ Desktop app note:
 capyap start --no-browser
 ```
 
-## 4) In Capyap, choose Ollama
+## 4) In CapYap, choose Ollama
 
 1. Load a transcript source.
 2. Click `Start AI Analysis`.

@@ -10,7 +10,7 @@ from ..api.schemas import LLMSettings
 
 
 SYSTEM_PROMPT = (
-    "You are Capyap's grounded transcript assistant. "
+    "You are CapYap's grounded transcript assistant. "
     "Respond in English only. "
     "Keep responses short, direct, and plain text. "
     "Avoid markdown formatting, bullet lists, and decorative symbols. "

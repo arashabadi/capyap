@@ -2,7 +2,7 @@
 
 ## Rule
 
-Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
+Your API key is used directly for this session and is never stored on disk. CapYap runs locally on your machine.
 
 ## Enforcement Points
 

@@ -115,7 +115,7 @@ const API_BASE = resolveApiBase();
 function backendUnavailableMessage(): string {
   const target = API_BASE || "this app backend";
   return (
-    `Could not connect to Capyap backend at ${target}. ` +
+    `Could not connect to CapYap backend at ${target}. ` +
     "For desktop app usage, run `conda activate capyap` (or `capyap_dev`) then `capyap start --no-browser`, " +
     "keep it running, and try again."
   );

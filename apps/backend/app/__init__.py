@@ -1,1 +1,1 @@
-"""Capyap backend package."""
+"""CapYap backend package."""

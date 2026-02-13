@@ -10,7 +10,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build parser for capyap utility commands."""
     parser = argparse.ArgumentParser(
         prog="capyap",
-        description="Capyap local app launcher.",
+        description="CapYap local app launcher.",
     )
 
     subparsers = parser.add_subparsers(dest="command")

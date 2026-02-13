@@ -1,10 +1,10 @@
-# Capyap
+# CapYap
 
-![Capyap Demo](docs/assets/capyap-demo.gif)
+![CapYap Demo](docs/assets/capyap-demo.gif)
 
 Local-first YouTube transcript assistant with citation-grounded answers.
 
-Capyap gives non-coder users a simple local workflow:
+CapYap gives non-coder users a simple local workflow:
 - paste a YouTube link (or transcript file)
 - ask questions in the AI panel
 - get answers with timestamp evidence
@@ -13,7 +13,7 @@ Capyap gives non-coder users a simple local workflow:
 - export transcript data in lightweight formats
 
 Privacy rule:
-- Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
+- Your API key is used directly for this session and is never stored on disk. CapYap runs locally on your machine.
 
 ## Desktop Apps (macOS / Windows / Linux)
 
@@ -25,7 +25,7 @@ Privacy rule:
 
 ## Free Local Agents (Ollama)
 
-- You can run Capyap agents fully local with Ollama for free.
+- You can run CapYap agents fully local with Ollama for free.
 - No cloud API key is required when provider is `ollama`.
 - Setup guide: `docs/OLLAMA_SETUP.md`
 
@@ -86,7 +86,7 @@ Release builds are fully automated in GitHub Actions.
 2. Create a version tag:
 
 ```bash
-git tag -a v1.0.0 -m "Capyap v1.0.0"
+git tag -a v1.0.0 -m "CapYap v1.0.0"
 git push origin v1.0.0
 ```
 
@@ -137,9 +137,9 @@ Before creating a public release tag, confirm:
 For separate backend/frontend/desktop development flow, see:
 - `apps/README.md`
 
-## Capyap CLI Tools (Optional)
+## CapYap CLI Tools (Optional)
 
-Capyap includes script-friendly CLI commands:
+CapYap includes script-friendly CLI commands:
 - `yt-extract-summarize`
 - `yt-transcript-chat`
 

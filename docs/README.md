@@ -1,6 +1,6 @@
 # Docs
 
-This folder contains technical documentation for Capyap.
+This folder contains technical documentation for CapYap.
 
 ## Start Here
 
@@ -9,4 +9,4 @@ This folder contains technical documentation for Capyap.
 - [Development Guide](DEVELOPMENT_GUIDE.md)
 - [Security and Privacy](SECURITY_AND_PRIVACY.md)
 - [Release Checklist](RELEASE_CHECKLIST.md)
-- [Capyap CLI](CAPYAP_CLI.md)
+- [CapYap CLI](CAPYAP_CLI.md)

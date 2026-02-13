@@ -1,4 +1,4 @@
-"""Runtime launcher for Capyap local web app."""
+"""Runtime launcher for CapYap local web app."""
 
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ def start_local_server(
     port: int = 8000,
     open_browser: bool = True,
 ) -> None:
-    """Start local Capyap server and optionally open browser."""
+    """Start local CapYap server and optionally open browser."""
     import uvicorn
 
     ensure_frontend_build_exists()

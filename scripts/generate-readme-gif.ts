@@ -180,7 +180,7 @@ const renderFrame = (frame: number): Canvas => {
   fillRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, COLORS.panel);
   strokeRect(img, 18, 18, WIDTH - 36, HEIGHT - 36, COLORS.stroke);
   fillRect(img, 18, 18, WIDTH - 36, 22, COLORS.panelAlt);
-  drawText(img, 'CAPYAP', 28, 24, 2, COLORS.text);
+  drawText(img, 'CapYap', 28, 24, 2, COLORS.text);
   drawText(img, 'LOCAL AI', 372, 24, 1, COLORS.muted);
 
   // Left chapters rail

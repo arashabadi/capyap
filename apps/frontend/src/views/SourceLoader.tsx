@@ -100,7 +100,7 @@ export const SourceLoader: React.FC<SourceLoaderProps> = ({ onSourceLoaded }) =>
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <h1 className="text-4xl font-bold text-white tracking-tight">Capyap</h1>
+            <h1 className="text-4xl font-bold text-white tracking-tight">CapYap</h1>
             <span className="text-xs px-2 py-1 rounded-full border border-neutral-700 text-neutral-300 bg-neutral-900/70 font-mono">
               {APP_VERSION}
             </span>

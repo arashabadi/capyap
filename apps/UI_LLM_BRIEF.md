@@ -1,11 +1,11 @@
-# Capyap Product Overview + UI Design Brief (Lightweight)
+# CapYap Product Overview + UI Design Brief (Lightweight)
 
 Use this document as a single input to an LLM for designing the graphical UI page by page.
 
 ## 1) Product Snapshot
 
 ### Name
-Capyap Local Agent
+CapYap Local Agent
 
 ### One-line purpose
 Turn any YouTube video (or transcript file) into a citation-grounded Q/A workspace with timestamp evidence.
@@ -166,7 +166,7 @@ You can paste the prompt below directly:
 ```text
 You are a senior product designer and frontend UX architect.
 
-Design a lightweight, production-ready UI for a local-first app called "Capyap Local Agent".
+Design a lightweight, production-ready UI for a local-first app called "CapYap Local Agent".
 Purpose: users load a YouTube video/transcript and ask questions answered with timestamp citations.
 
 Tech constraints:

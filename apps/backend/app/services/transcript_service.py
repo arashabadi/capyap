@@ -235,7 +235,7 @@ class TranscriptService:
                 params={"url": watch_url, "format": "json"},
                 timeout=12,
                 headers={
-                    "User-Agent": "Mozilla/5.0 (Capyap/1.0)",
+                    "User-Agent": "Mozilla/5.0 (CapYap/1.0)",
                     "Accept-Language": "en-US,en;q=0.9",
                 },
             )
@@ -269,7 +269,7 @@ class TranscriptService:
                 url,
                 timeout=20,
                 headers={
-                    "User-Agent": "Mozilla/5.0 (Capyap/1.0)",
+                    "User-Agent": "Mozilla/5.0 (CapYap/1.0)",
                     "Accept-Language": "en-US,en;q=0.9",
                 },
             )

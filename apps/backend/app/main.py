@@ -1,4 +1,4 @@
-"""FastAPI entrypoint for Capyap local backend."""
+"""FastAPI entrypoint for CapYap local backend."""
 
 from __future__ import annotations
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-APP_NAME = "Capyap Local Agent"
+APP_NAME = "CapYap Local Agent"
 APP_VERSION = "0.1.0"
 
 DEFAULT_DATA_DIR = Path(".capyap")

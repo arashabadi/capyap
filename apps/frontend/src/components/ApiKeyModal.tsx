@@ -33,7 +33,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
     },
     ollama: {
       placeholder: 'No key required for local Ollama',
-      hint: 'Capyap checks your local Ollama server and models automatically.',
+      hint: 'CapYap checks your local Ollama server and models automatically.',
     },
   };
   const requiresApiKey = provider !== 'ollama';
@@ -83,7 +83,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
              <ShieldCheck className="text-green-500 flex-shrink-0" size={20} />
              <p className="text-xs text-neutral-400 leading-relaxed">
                Your API key is used directly for this session and is <strong>never stored</strong> on disk. 
-               Capyap runs locally on your machine.
+               CapYap runs locally on your machine.
              </p>
           </div>
 
@@ -185,7 +185,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSub
                        4. Keep Ollama running, then click <strong>Re-check</strong> and continue.
                      </p>
                      <p className="text-neutral-500">
-                       Capyap should be running locally (example: <code className="font-mono">capyap start</code>).
+                       CapYap should be running locally (example: <code className="font-mono">capyap start</code>).
                      </p>
                    </div>
                  )}

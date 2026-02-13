@@ -1,4 +1,4 @@
-# Capyap CLI
+# CapYap CLI
 
 This repo includes two script-friendly CLI commands for transcript workflows.
 

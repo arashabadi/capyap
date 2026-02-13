@@ -26,7 +26,7 @@ capyap start
 `capyap start` opens the local web app automatically in your browser.
 
 Privacy rule:
-- Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
+- Your API key is used directly for this session and is never stored on disk. CapYap runs locally on your machine.
 
 ## 1) Create advanced dev environment
 

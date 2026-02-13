@@ -215,7 +215,7 @@ fn try_spawn_backend(candidate: &LaunchCandidate) -> Option<Child> {
         Ok(child) => Some(child),
         Err(err) => {
             eprintln!(
-                "Capyap desktop: failed backend launch candidate {} ({})",
+                "CapYap desktop: failed backend launch candidate {} ({})",
                 candidate.program, err
             );
             None
@@ -225,13 +225,13 @@ fn try_spawn_backend(candidate: &LaunchCandidate) -> Option<Child> {
 
 fn ensure_backend() -> Option<Child> {
     if backend_is_healthy() {
-        eprintln!("Capyap desktop: backend already reachable at {}", BACKEND_HEALTH_URL);
+        eprintln!("CapYap desktop: backend already reachable at {}", BACKEND_HEALTH_URL);
         return None;
     }
 
     for candidate in launch_candidates() {
         eprintln!(
-            "Capyap desktop: trying backend launch candidate {} {:?}",
+            "CapYap desktop: trying backend launch candidate {} {:?}",
             candidate.program, candidate.args
         );
         let Some(mut child) = try_spawn_backend(&candidate) else {
@@ -240,7 +240,7 @@ fn ensure_backend() -> Option<Child> {
 
         if wait_for_backend_ready(Duration::from_secs(22), &mut child) {
             eprintln!(
-                "Capyap desktop: backend auto-started using {}",
+                "CapYap desktop: backend auto-started using {}",
                 candidate.program
             );
             return Some(child);
@@ -249,19 +249,19 @@ fn ensure_backend() -> Option<Child> {
         match child.try_wait() {
             Ok(Some(status)) => {
                 eprintln!(
-                    "Capyap desktop: backend launch candidate {} exited early ({})",
+                    "CapYap desktop: backend launch candidate {} exited early ({})",
                     candidate.program, status
                 );
             }
             Ok(None) => {
                 eprintln!(
-                    "Capyap desktop: backend launch candidate {} timed out waiting for health",
+                    "CapYap desktop: backend launch candidate {} timed out waiting for health",
                     candidate.program
                 );
             }
             Err(err) => {
                 eprintln!(
-                    "Capyap desktop: backend launch candidate {} status check failed ({})",
+                    "CapYap desktop: backend launch candidate {} status check failed ({})",
                     candidate.program, err
                 );
             }
@@ -272,7 +272,7 @@ fn ensure_backend() -> Option<Child> {
     }
 
     eprintln!(
-        "Capyap desktop: backend auto-start failed. Launch manually with `capyap start --no-browser`."
+        "CapYap desktop: backend auto-start failed. Launch manually with `capyap start --no-browser`."
     );
     None
 }
@@ -330,7 +330,7 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![open_external_url])
         .build(tauri::generate_context!())
-        .expect("error while building Capyap desktop app")
+        .expect("error while building CapYap desktop app")
         .run(move |_app_handle, event| {
             if matches!(
                 event,

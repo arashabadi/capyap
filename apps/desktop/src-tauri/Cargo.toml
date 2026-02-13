@@ -1,8 +1,8 @@
 [package]
 name = "capyap_desktop"
 version = "1.0.2"
-description = "Capyap local desktop shell"
-authors = ["Capyap"]
+description = "CapYap local desktop shell"
+authors = ["CapYap"]
 license = "MIT"
 edition = "2021"
 
