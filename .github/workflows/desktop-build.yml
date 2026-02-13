@@ -14,7 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-22.04, windows-latest]
+        include:
+          - os: macos-latest
+            bundles: app
+          - os: ubuntu-22.04
+            bundles: deb,rpm,appimage
+          - os: windows-latest
+            bundles: msi,nsis
 
     runs-on: ${{ matrix.os }}
 
@@ -45,7 +51,13 @@ jobs:
         run: npm --prefix apps/desktop run tauri -- --version
 
       - name: Build desktop installers
-        run: npm --prefix apps/desktop run build
+        run: npm --prefix apps/desktop run build -- --bundles "${{ matrix.bundles }}"
+
+      - name: Package macOS app archive
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd apps/desktop/src-tauri/target/release/bundle/macos
+          tar -czf Capyap_macOS.app.tar.gz Capyap.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

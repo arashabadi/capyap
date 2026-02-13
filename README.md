@@ -68,6 +68,11 @@ git push origin v1.0.0
 3. GitHub Actions runs `Desktop Release` and publishes installers to:
    [GitHub Releases](https://github.com/arashabadi/capyap/releases/latest)
 
+Release assets include:
+- macOS: `.app.tar.gz`
+- Windows: `.msi` and/or `.exe` (NSIS)
+- Linux: `.deb`, `.rpm`, `.AppImage`
+
 The workflow file is:
 - `.github/workflows/desktop-release.yml`
 
