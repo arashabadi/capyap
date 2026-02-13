@@ -50,6 +50,7 @@ Run all:
 - Source loader: `apps/frontend/src/views/SourceLoader.tsx`
 - API bridge: `apps/frontend/src/services/api.ts`
 - YouTube timestamp deep-link helper: `apps/frontend/src/services/youtube.ts`
+- iPad-friendly export generator: `apps/frontend/src/services/export.ts`
 
 ## Backend Notes
 

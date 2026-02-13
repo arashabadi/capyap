@@ -38,12 +38,13 @@ jobs:
         run: npm --prefix apps/frontend install
 
       - name: Install desktop deps
-        run: npm --prefix apps/desktop install
+        run: npm --prefix apps/desktop install --include=dev
+
+      - name: Verify Tauri CLI
+        run: npm --prefix apps/desktop run tauri -- --version
 
       - name: Build desktop installers
-        uses: tauri-apps/tauri-action@v0
-        with:
-          projectPath: apps/desktop
+        run: npm --prefix apps/desktop run build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

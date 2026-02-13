@@ -7,6 +7,7 @@ Capyap gives non-coder users a simple local workflow:
 - ask questions in the AI panel
 - get answers with timestamp evidence
 - click timestamps to open YouTube at the exact moment
+- export an iPad-friendly `.html` transcript with clickable timestamps
 
 Privacy rule:
 - Your API key is used directly for this session and is never stored on disk. Capyap runs locally on your machine.
