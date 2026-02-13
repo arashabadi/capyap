@@ -22,6 +22,7 @@ _SHORT_DESCRIPTION_RE = re.compile(
 _CHAPTER_LINE_RE = re.compile(
     r"^\s*(?P<stamp>(?:\d{1,2}:)?\d{1,2}:\d{2})\s+(?P<title>.+?)\s*$"
 )
+_CHAPTER_RENDERER_NEEDLE = '"chapterRenderer":'
 
 
 class TranscriptService:
@@ -175,18 +176,28 @@ class TranscriptService:
     @staticmethod
     def _fetch_youtube_chapter_markers(video_id: str) -> list[tuple[float, str]]:
         """Parse chapter timestamp markers from YouTube watch-page description."""
-        url = f"https://www.youtube.com/watch?v={video_id}"
+        url = (
+            "https://www.youtube.com/watch"
+            f"?v={video_id}&hl=en&persist_hl=1&gl=US&bpctr=9999999999&has_verified=1"
+        )
         try:
             response = requests.get(
                 url,
                 timeout=20,
-                headers={"User-Agent": "Mozilla/5.0 (Capyap/1.0)"},
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Capyap/1.0)",
+                    "Accept-Language": "en-US,en;q=0.9",
+                },
             )
         except Exception:
             return []
 
         if response.status_code >= 400:
             return []
+
+        rendered = TranscriptService._extract_chapters_from_renderers(response.text)
+        if len(rendered) >= 2:
+            return rendered
 
         description = TranscriptService._extract_short_description(response.text)
         if not description:
@@ -215,6 +226,106 @@ class TranscriptService:
 
         ordered = sorted(unique.items(), key=lambda item: item[0])
         return [(float(sec), title) for sec, title in ordered]
+
+    @staticmethod
+    def _extract_chapters_from_renderers(watch_html: str) -> list[tuple[float, str]]:
+        markers: list[tuple[float, str]] = []
+        cursor = 0
+        while True:
+            needle_idx = watch_html.find(_CHAPTER_RENDERER_NEEDLE, cursor)
+            if needle_idx < 0:
+                break
+
+            object_start = watch_html.find("{", needle_idx + len(_CHAPTER_RENDERER_NEEDLE))
+            if object_start < 0:
+                break
+
+            raw_obj, object_end = TranscriptService._extract_json_object(
+                watch_html, object_start
+            )
+            if not raw_obj:
+                cursor = object_start + 1
+                continue
+
+            try:
+                payload = json.loads(raw_obj)
+            except Exception:
+                cursor = object_end
+                continue
+
+            title = TranscriptService._chapter_title_from_payload(payload)
+            ms_raw = payload.get("timeRangeStartMillis")
+            if title and ms_raw is not None:
+                try:
+                    start = float(ms_raw) / 1000.0
+                    markers.append((max(0.0, start), title))
+                except Exception:
+                    pass
+
+            cursor = object_end
+
+        dedup: dict[int, str] = {}
+        for seconds, title in markers:
+            key = int(max(0, round(seconds)))
+            if key not in dedup:
+                dedup[key] = title
+        ordered = sorted(dedup.items(), key=lambda item: item[0])
+        return [(float(sec), title) for sec, title in ordered]
+
+    @staticmethod
+    def _extract_json_object(blob: str, start_idx: int) -> tuple[str, int]:
+        if start_idx < 0 or start_idx >= len(blob) or blob[start_idx] != "{":
+            return "", start_idx
+
+        depth = 0
+        in_string = False
+        escaped = False
+        idx = start_idx
+        while idx < len(blob):
+            ch = blob[idx]
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif ch == "\\":
+                    escaped = True
+                elif ch == '"':
+                    in_string = False
+            else:
+                if ch == '"':
+                    in_string = True
+                elif ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        return blob[start_idx : idx + 1], idx + 1
+            idx += 1
+
+        return "", start_idx
+
+    @staticmethod
+    def _chapter_title_from_payload(payload: dict) -> str:
+        title_data = payload.get("title")
+        if not isinstance(title_data, dict):
+            return ""
+
+        simple = title_data.get("simpleText")
+        if isinstance(simple, str) and simple.strip():
+            return simple.strip()
+
+        runs = title_data.get("runs")
+        if isinstance(runs, list):
+            parts = []
+            for row in runs:
+                if isinstance(row, dict):
+                    text = row.get("text")
+                    if isinstance(text, str):
+                        parts.append(text.strip())
+            joined = " ".join(part for part in parts if part).strip()
+            if joined:
+                return joined
+
+        return ""
 
     @staticmethod
     def _extract_short_description(watch_html: str) -> str:

@@ -38,7 +38,8 @@ build/
 src-tauri/target/
 apps/desktop/src-tauri/target/
 apps/desktop/src-tauri/gen/
-apps/desktop/src-tauri/icons/
+apps/desktop/src-tauri/icons/*
+!apps/desktop/src-tauri/icons/icon.png
 
 # App local data
 .capyap/

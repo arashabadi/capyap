@@ -45,6 +45,12 @@ Node order:
 - Selects top transcript chunks for the user question.
 - Uses local transcript chunk cache.
 
+### Chapters
+
+- On transcript load, backend attempts to parse native YouTube chapters.
+- If no native chapters are available, UI can call chapter generation after API key entry.
+- Generated chapters are cached to the local transcript payload.
+
 ### Prompt Construction
 
 - Builds structured context with chunk IDs and timestamp labels.
