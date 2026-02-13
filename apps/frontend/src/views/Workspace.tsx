@@ -339,7 +339,7 @@ export const Workspace: React.FC<WorkspaceProps> = ({ source, onBack }) => {
               {chatHistory.map(msg => (
                 <div key={msg.id} className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                    <div className={`
-                     max-w-[90%] px-4 py-3 rounded-2xl text-sm leading-relaxed
+                     max-w-[90%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap
                      ${msg.role === 'user' 
                        ? 'bg-neutral-800 text-white rounded-tr-sm border border-neutral-700' 
                        : 'bg-transparent text-neutral-300 pl-0'}
